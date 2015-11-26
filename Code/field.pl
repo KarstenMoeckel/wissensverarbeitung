@@ -44,12 +44,12 @@ drawLegend :-
    write('   weisse Dame: '),
    writeln(Char4).
 
-drawGame(legend) :-
+printGame(legend) :-
    drawLegend,
    writeln(''),
-   drawGame.
+   printGame.
 
-drawGame :-
+printGame :-
    writeln(' 1 2 3 4 5 6 7 8 '),
    writeln(' _ _ _ _ _ _ _ _ '),
    (
