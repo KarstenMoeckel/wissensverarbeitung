@@ -1,5 +1,5 @@
 % author: Robert Maas
-% Datum: 24.11.2015
+% Datum: 27.11.2015
 
 field(Row,Col,Color) :-
    numbers(Row),
@@ -32,17 +32,17 @@ numbers(X) :- between(1,8,X).
 drawLegend :-
    writeln('Legende:'),
    legend(black,normal,Char1),
-   write('   schwarz: '),
-   writeln(Char1),
+   atom_concat('   schwarz: ', Char1, Output1),
+   writeln(Output1),
    legend(black,queen,Char2),
-   write('   schwarze Dame: '),
-   writeln(Char2),
+   atom_concat('   schwarze Dame: ', Char2, Output2),
+   writeln(Output2),
    legend(white,normal,Char3),
-   write('   weiss: '),
-   writeln(Char3),
+   atom_concat('   weiss: ', Char3, Output3),
+   writeln(Output3),
    legend(white,queen,Char4),
-   write('   weisse Dame: '),
-   writeln(Char4).
+   atom_concat('   weisse Dame: ', Char4, Output4),
+   writeln(Output4).
 
 printGame(legend) :-
    drawLegend,
