@@ -3,4 +3,7 @@
 
 init :-
    consult('field'),
-   consult('GUI').
+   consult('GUI'),
+   consult('rules'),
+   writeln('startGUI.'),
+   writeln('updateStonePos.').

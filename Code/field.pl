@@ -13,7 +13,11 @@ field(Row,Col,Color) :-
    )
    ;
    Color='white'.
-   
+
+% player(Position, Color).
+player(top, black).
+player(bottom, white).
+
 % legend(Stonecolor,Type, Char).
 legend(black,normal,'b').
 legend(black,queen,'B').
@@ -59,7 +63,7 @@ printGame :-
    )
    ;
       true.
-   
+
 drawRow(Row) :-
    (
       numbers(X),
