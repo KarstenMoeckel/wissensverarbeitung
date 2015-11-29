@@ -16,17 +16,17 @@ validMove(X1, Y1, X2, Y2, Player) :-
             (Position == bottom ; Type == 'queen'),
             (
                 %% top left
-                (writeln('penis 1'), X2 is (X1 - 1), Y2 is (Y1 - 1));
+                (X2 is (X1 - 1), Y2 is (Y1 - 1), !);
                 %% top right
-                (writeln('penis 2'), X2 is (X1 + 1), Y2 is (Y1 - 1))
+                (X2 is (X1 + 1), Y2 is (Y1 - 1), !)
             )
             ;
             (Position == top ; Type == 'queen'),
             (
                 %% bottom left
-                (writeln('penis 3'), X2 is (X1 - 1), Y2 is (Y1 + 1));
+                (X2 is (X1 - 1), Y2 is (Y1 + 1), !);
                 %% bottom right
-                (writeln('penis 4'), X2 is (X1 + 1), Y2 is (Y1 + 1))
+                (X2 is (X1 + 1), Y2 is (Y1 + 1), !)
             )
         )
     )
