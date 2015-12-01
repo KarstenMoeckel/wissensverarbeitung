@@ -27,9 +27,9 @@ legend(white,queen, 'W').
 % stone(Row,Col,StoneColor,Type).
 :- dynamic stone/4.
 stone(3,4,black,normal).
-stone(8,4,white,normal).
+stone(4,5,white,normal).
 stone(8,1,black,queen).
-stone(7,7,white,queen).
+stone(2,7,white,normal).
 
 numbers(X) :- between(1,8,X).
 
@@ -84,7 +84,7 @@ drawField(Row,Col) :-
    ;
 %      field(Row,Col, FieldColor),
 %      (
-%         FieldColor == black,
+%         FieldColor == blac
 %         write('x'),
 %         !
 %      )
