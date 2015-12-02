@@ -3,7 +3,7 @@
 
 init :-
    consult('knowledgeBase'),
-   consult('loadFile'),
+   consult('IO'),
    consult('GUI'),
    consult('rules'),
    consult('utility'),
