@@ -15,9 +15,10 @@ namespace Dame
     /// </summary>
     public partial class App : Application
     {
+
         protected override void OnStartup(StartupEventArgs e)
         {
-            Environment.SetEnvironmentVariable("SWI_HOME_DIR", @"C:\Program Files (x86)\swipl\");
+            //Environment.SetEnvironmentVariable("SWI_HOME_DIR", @"C:\Program Files (x86)\swipl\");
             PlEngine.Initialize(new string[] { "-q", "-f", "main.pl" });
             if (!PlQuery.PlCall("init."))
             {
