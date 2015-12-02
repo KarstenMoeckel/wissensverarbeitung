@@ -8,7 +8,6 @@
 
 fieldLength(30).
 blackFieldColor(colour(gray)).
-history(['abc123', 'def456', 'ghi789']).
 fieldOffset(25,5). % fieldOffset(Top,Left).
 
 stoneImage(black,normal,'black_normal.xpm').
@@ -18,9 +17,14 @@ stoneImage(white,queen,'white_queen.xpm').
 
 updateHistory :-
    historyBrowser(B),
-   history(List),
-   !,
-   send(B, members(List)),
+   (
+      (
+         history(List) ->
+         send(B, members(List))
+      )
+      ;
+      send(B, clear)
+   ),
    send(B, flush).
 
 updateStonePos :-

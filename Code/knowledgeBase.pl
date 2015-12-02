@@ -2,6 +2,7 @@
 % Datum: 02.12.2015
 
 :- dynamic history/1.
+:- dynamic historyUpdated/0.
 
 % player(Position, Color).
 player(top, black).

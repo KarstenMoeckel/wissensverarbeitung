@@ -5,10 +5,20 @@
 :- dynamic currentCol/1.
 
 logMessage(Message) :-
-   history(List),
-   retractall(history(_)),
-   List_n = [Message | List],
-   assertz(history(List_n)),
+   (
+      (
+         history(List) ->
+         retractall(history(_)),
+         List_n = [Message | List],
+         assertz(history(List_n))
+      )
+      ;
+      (
+         not(history(_)) ->
+         assertz(history([Message]))
+      )
+   ),
+   (not(historyUpdated) -> assert(historyUpdated); true),
    updateHistory.
 
 loadStartPos(File) :-
@@ -20,85 +30,43 @@ loadStartPos(File) :-
    open(File, read, Str),
    repeat,
    get_char(Str, Char),
-   processChar(Char),
+   currentRow(Row),
+   currentCol(Col),
+   not(processChar(Char, Row, Col)),
    close(Str).
 
-processChar(end_of_file) :- !.
-processChar(Char) :-
-   currentCol(Col),
-   currentRow(Row),
+processChar(end_of_file, _, _) :- !, fail.
+processChar('_', _, Col) :- %empty field
+   incrementCol(Col).
+processChar('b', Row, Col) :- %black stone
+   field(Row,Col,black),
+   assertz(stone(Row,Col,black,normal)),
+   incrementCol(Col).
+processChar('w', Row, Col) :- %white stone
+   field(Row,Col,black),
+   assertz(stone(Row,Col,white,normal)),
+   incrementCol(Col).
+processChar('B', Row, Col) :- %black queen
+   field(Row,Col,black),
+   assertz(stone(Row,Col,black,queen)),
+   incrementCol(Col).
+processChar('W', Row, Col) :- %white queen
+   field(Row,Col,black),
+   assertz(stone(Row,Col,white,queen)),
+   incrementCol(Col).
+processChar(Char, Row, Col) :-
+   %end of line
+   (Char == '\r'; Char == '\n') ->
+   incrementRow(Row,Col)
+   ;
    (
-      (
-         %empty field
-         Char == '_' ->
-            incrementCol,
-            fail
-      )
-      ;
-      (
-         %black stone
-         Char == b ->
-         (
-         field(Row,Col,black),
-         assertz(stone(Row,Col,black,normal)),
-         incrementCol,
-         fail
-         )
-      )
-      ;
-      (
-         %white stone
-         Char == w ->
-         (
-            field(Row,Col,black),
-            assertz(stone(Row,Col,white,normal)),
-            incrementCol,
-            fail
-         )
-      )
-      ;
-      (
-         %black queen
-         Char == 'B' ->
-         (
-            field(Row,Col,black),
-            assertz(stone(Row,Col,black,queen)),
-            incrementCol,
-            fail
-         )
-      )
-      ;
-      (
-         %white queen
-         Char == 'W' ->
-         (
-            field(Row,Col,black),
-            assertz(stone(Row,Col,white,queen)),
-            incrementCol,
-            fail
-         )
-      )
-      ;
-      (
-         %end of line
-         (Char == '\r'; Char == '\n') ->
-         (
-            incrementRow,
-            fail
-         )
-      )
-      ;
-      (
-         !,
-         atom_concat('invalid char: ', Char, Output),
-         logMessage(Output)
-      )
+      atom_concat('invalid char: ', Char, Output),
+      logMessage(Output),
+      fail
    ).
    
-incrementRow :-
-   currentRow(Row),
-   currentCol(Col),
-   Col \== 1, %prevents double excecution
+incrementRow(Row, Col) :-
+   Col == 9 -> %prevents double excecution
    retract(currentRow(Row)),
    Row_new is Row + 1,
    numbers(Row_new),
@@ -106,8 +74,7 @@ incrementRow :-
    retractall(currentCol(_)),
    assertz(currentCol(1)).
    
-incrementCol :-
-   currentCol(Col),
+incrementCol(Col) :-
    retract(currentCol(Col)),
    Col_new is Col + 1,
    assertz(currentCol(Col_new)).
