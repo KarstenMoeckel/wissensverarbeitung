@@ -5,6 +5,6 @@ init :-
    consult('field'),
    consult('GUI'),
    consult('rules'),
-   consult('utility'),
-   writeln('startGUI.'),
-   writeln('updateStonePos.').
+   consult('utility').
+   
+test(abc).
