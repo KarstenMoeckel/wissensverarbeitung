@@ -21,11 +21,41 @@ namespace Dame
     public partial class MainWindow : Window
     {
         private Engine engine;
+        private int moveSourceRow;
+        private int moveSourceCol;
 
         public MainWindow()
         {
             InitializeComponent();
             engine = new Engine();
+            engine.HistoryChanged += Engine_HistoryChanged;
+            engine.StonesChanged += Engine_StonesChanged;
+            moveSourceCol = 0;
+            moveSourceRow = 0;
+        }
+
+        private void Engine_StonesChanged(object sender, StoneChangedEventArgs e)
+        {
+            foreach (Button button in gameField.Children.OfType<Button>())
+                button.Content = null;
+            foreach (Stone stone in e.Stones)
+            {
+                BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
+                Image img = new Image();
+                img.Source = image;
+                img.Stretch = Stretch.Fill;
+                Button btn = gameField.Children.OfType<Button>().FirstOrDefault((b) => Grid.GetColumn(b) == stone.Column && Grid.GetRow(b) == stone.Row);
+                if (btn == null)
+                    throw new Exception(string.Format("Could not find button in Cell {0}/{1}", stone.Row, stone.Column));
+                btn.Content = img;
+            }
+        }
+
+        private void Engine_HistoryChanged(object sender, HistoryEventArgs e)
+        {
+            lb_History.Items.Clear();
+            foreach (string str in e.History)
+                lb_History.Items.Add(str);
         }
 
         private void GameFieldButton_Click(object sender, RoutedEventArgs e)
@@ -33,30 +63,20 @@ namespace Dame
             Button b = (Button)sender;
             int row = Grid.GetRow(b);
             int col = Grid.GetColumn(b);
+            if (moveSourceRow == 0)
+            {
+                moveSourceCol = col;
+                moveSourceRow = row;
+            }
+            else
+            {
+                engine.MoveStone(moveSourceRow, moveSourceCol, row, col);
+            }
         }
-
+        
         private void btn_Start_Click(object sender, RoutedEventArgs e)
         {
             engine.Start();
-            UpdateStoneList();
-        }
-
-        private void UpdateStoneList()
-        {
-            IEnumerable<Stone> list = engine.GetStoneList();
-            foreach (Button button in gameField.Children.OfType<Button>())
-                button.Content = null;
-            foreach (Stone stone in list)
-            {
-                BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
-                Image img = new Image();
-                img.Source = image;
-                img.Stretch = Stretch.Fill;
-                Button b = gameField.Children.OfType<Button>().FirstOrDefault((e) => Grid.GetColumn(e) == stone.Column && Grid.GetRow(e) == stone.Row);
-                if (b == null)
-                    throw new Exception(string.Format("Could not find button in Cell {0}/{1}", stone.Row, stone.Column));
-                b.Content = img;
-            }
         }
         
         private Uri GetStoneImageUri(StoneColor color, StoneType type)

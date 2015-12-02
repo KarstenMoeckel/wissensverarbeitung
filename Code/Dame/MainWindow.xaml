@@ -39,7 +39,7 @@
         </Grid.ColumnDefinitions>
         <GridSplitter Grid.Column="1" VerticalAlignment="Stretch"/>
 
-        <ListBox Grid.Column="2" x:Name="lb_History" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,31,10,35"/>
+        <ListBox Grid.Column="2" x:Name="lb_History" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,31,10,45"/>
         <Label Grid.Column="2" Content="Verlauf:" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,0"/>
         <Grid x:Name="gameField" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
             <Grid.RowDefinitions>
@@ -154,6 +154,6 @@
             <Label Grid.Column="0" Grid.Row="7" Content="7" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18.667"/>
             <Label Grid.Column="0" Grid.Row="8" Content="8" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18.667"/>
         </Grid>
-        <Button x:Name="btn_Start" Content="Start" Grid.Column="2" HorizontalAlignment="Left" Margin="10,362,0,0" VerticalAlignment="Top" Width="130" Click="btn_Start_Click"/>
+        <Button x:Name="btn_Start" Content="Start" Grid.Column="2" HorizontalAlignment="Left" Margin="10,352,0,0" VerticalAlignment="Top" Width="130" Click="btn_Start_Click"/>
     </Grid>
 </Window>
