@@ -3,6 +3,7 @@
 
 :- dynamic history/1.
 :- dynamic historyUpdated/0.
+:- dynamic stonesUpdated/0.
 
 % player(Position, Color).
 player(top, black).

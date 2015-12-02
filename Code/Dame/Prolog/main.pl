@@ -6,6 +6,4 @@ init :-
    consult('IO'),
    consult('GUI'),
    consult('rules'),
-   consult('utility'),
-   writeln('startGUI.'),
-   writeln('updateStonePos.').
+   consult('utility').
