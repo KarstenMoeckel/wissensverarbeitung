@@ -19,7 +19,7 @@ logMessage(Message) :-
       )
    ),
    (not(historyUpdated) -> assert(historyUpdated); true),
-   updateHistory.
+   (updateHistory; true).
 
 loadStartPos(File) :-
    retractall(stone(_,_,_,_)),
@@ -29,11 +29,13 @@ loadStartPos(File) :-
    assertz(currentCol(1)),
    open(File, read, Str),
    repeat,
-   get_char(Str, Char),
-   currentRow(Row),
-   currentCol(Col),
-   not(processChar(Char, Row, Col)),
-   close(Str).
+      get_char(Str, Char),
+      currentRow(Row),
+      currentCol(Col),
+      not(processChar(Char, Row, Col)),
+   close(Str),
+   (not(stonesUpdated)-> assertz(stonesUpdated)),
+   logMessage('Die StartPositionen wurden erfolgreich geladen').
 
 processChar(end_of_file, _, _) :- !, fail.
 processChar('_', _, Col) :- %empty field

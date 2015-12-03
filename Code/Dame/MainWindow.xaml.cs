@@ -36,26 +36,32 @@ namespace Dame
 
         private void Engine_StonesChanged(object sender, StoneChangedEventArgs e)
         {
-            foreach (Button button in gameField.Children.OfType<Button>())
-                button.Content = null;
-            foreach (Stone stone in e.Stones)
+            Dispatcher.Invoke(new Action(() =>
             {
-                BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
-                Image img = new Image();
-                img.Source = image;
-                img.Stretch = Stretch.Fill;
-                Button btn = gameField.Children.OfType<Button>().FirstOrDefault((b) => Grid.GetColumn(b) == stone.Column && Grid.GetRow(b) == stone.Row);
-                if (btn == null)
-                    throw new Exception(string.Format("Could not find button in Cell {0}/{1}", stone.Row, stone.Column));
-                btn.Content = img;
-            }
+                foreach (Button button in gameField.Children.OfType<Button>())
+                    button.Content = null;
+                foreach (Stone stone in e.Stones)
+                {
+                    BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
+                    Image img = new Image();
+                    img.Source = image;
+                    img.Stretch = Stretch.Fill;
+                    Button btn = gameField.Children.OfType<Button>().FirstOrDefault((b) => Grid.GetColumn(b) == stone.Column && Grid.GetRow(b) == stone.Row);
+                    if (btn == null)
+                        throw new Exception(string.Format("Could not find button in Cell {0}/{1}", stone.Row, stone.Column));
+                    btn.Content = img;
+                }
+            }));
         }
 
         private void Engine_HistoryChanged(object sender, HistoryEventArgs e)
         {
-            lb_History.Items.Clear();
-            foreach (string str in e.History)
-                lb_History.Items.Add(str);
+            Dispatcher.Invoke(new Action(() =>
+            {
+                lb_History.Items.Clear();
+                foreach (string str in e.History)
+                    lb_History.Items.Add(str);
+            }));
         }
 
         private void GameFieldButton_Click(object sender, RoutedEventArgs e)
@@ -95,6 +101,25 @@ namespace Dame
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             engine.Init();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            engine.Dispose();
+        }
+
+        private void loadStartPos_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.CheckFileExists = true;
+            dialog.InitialDirectory = Environment.CurrentDirectory;
+            dialog.Multiselect = false;
+            bool? result = dialog.ShowDialog();
+            if (result.Value)
+            {
+                if (!engine.LoadFile(dialog.FileName))
+                    MessageBox.Show("Die StartPositionen konnen nicht geladen werden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }

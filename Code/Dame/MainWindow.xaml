@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Dame"
         mc:Ignorable="d"
-        Title="Dame" Height="423" Width="566" MinWidth="566" MinHeight="423" Loaded="Window_Loaded">
+        Title="Dame" Height="423" Width="566" MinWidth="566" MinHeight="423" Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
         <SolidColorBrush x:Key="BlackFieldColor" Color="LightGray"/>
         <SolidColorBrush x:Key="WhiteFieldColor" Color="White"/>
@@ -21,15 +21,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="Button" x:Key="StoneImageStyle">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <ContentPresenter/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
     <Grid >
         <Grid.ColumnDefinitions>
@@ -37,11 +28,18 @@
             <ColumnDefinition Width="2"/>
             <ColumnDefinition Width="150"/>
         </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch"/>
+        <Menu IsMainMenu="True" Grid.ColumnSpan="3" Height="20" VerticalAlignment="Top">
+            <MenuItem Header="Datei">
+                <MenuItem Header="StartPosition laden" Click="loadStartPos_Click"/>
+                <MenuItem Header="Optionen"/>
+                <MenuItem Header="Beenden"/>
+            </MenuItem>
+        </Menu>
+        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" Margin="0,25,0,0"/>
 
-        <ListBox Grid.Column="2" x:Name="lb_History" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,31,10,45"/>
-        <Label Grid.Column="2" Content="Verlauf:" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,0"/>
-        <Grid x:Name="gameField" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
+        <ListBox Grid.Column="2" x:Name="lb_History" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,59,10,45"/>
+        <Label Grid.Column="2" Content="Verlauf:" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,30,10,0" Height="24"/>
+        <Grid x:Name="gameField" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,30,20,20" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>

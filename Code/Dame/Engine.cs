@@ -33,6 +33,11 @@ namespace Dame
             Options.SetOptions();
         }
 
+        public bool LoadFile(string file)
+        {
+            return PlQuery.PlCall("loadStartPos", new PlTermV(new PlTerm("'" + file.Replace('\\','/') + "'")));
+        }
+
         private void CheckHistory_Thread()
         {
             PlEngine.PlThreadAttachEngine();
@@ -42,6 +47,7 @@ namespace Dame
                 {
                     PlQuery query = new PlQuery("history(X)");
                     PlTerm result = query.Solutions.First()[0];
+                    PlQuery.PlCall("retractall(historyUpdated)");
                     HistoryEventArgs args = new HistoryEventArgs(result.ToListString());
                     HistoryChanged.Invoke(this, args);
                 }
@@ -58,6 +64,7 @@ namespace Dame
                 {
                     PlQuery query = new PlQuery("stone(Row,Col,Color,Type)");
                     IEnumerable<PlTermV> result = query.Solutions;
+                    PlQuery.PlCall("retractall(stonesUpdated)");
                     StoneChangedEventArgs args = new StoneChangedEventArgs(result.Select<PlTermV, Stone>((v) => new Stone(v)));
                     StonesChanged.Invoke(this, args);
                 }
