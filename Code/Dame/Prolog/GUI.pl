@@ -99,13 +99,11 @@ createField(Row,Col,Field) :-
    new(Field, box(Length,Length)),
    field(Row,Col, FieldColor),
    (
-      (
-         FieldColor == black ->
+      FieldColor == black ->
          blackFieldColor(Color),
-         send(Field, fill_pattern, Color),
-      )
+         send(Field, fill_pattern, Color)
       ;
-         true
+      true
    ).
    
 startGUI :-

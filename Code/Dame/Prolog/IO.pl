@@ -1,5 +1,5 @@
 % author: Robert Maas
-% Datum: 02.12.2015
+% Datum: 03.12.2015
 
 :- dynamic currentRow/1.
 :- dynamic currentCol/1.
@@ -18,8 +18,7 @@ logMessage(Message) :-
          assertz(history([Message]))
       )
    ),
-   (not(historyUpdated) -> assert(historyUpdated); true),
-   (updateHistory; true).
+   (not(historyUpdated) -> assert(historyUpdated); true).
 
 loadStartPos(File) :-
    retractall(stone(_,_,_,_)),
@@ -34,7 +33,8 @@ loadStartPos(File) :-
       currentCol(Col),
       not(processChar(Char, Row, Col)),
    close(Str),
-   (not(stonesUpdated)-> assertz(stonesUpdated)),
+   !,
+   (not(stonesUpdated)-> assertz(stonesUpdated); true),
    logMessage('Die StartPositionen wurden erfolgreich geladen').
 
 processChar(end_of_file, _, _) :- !, fail.
