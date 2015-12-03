@@ -1,15 +1,13 @@
 % Autor: Robert Maas
-% Datum: 27.11.2015
+% Datum: 02.12.2015
 
 :- use_module(library(pce)).
 :- dynamic gameField/1.
 :- dynamic stone/3. % stone(Color, Type, GUI-Element-Reference).
 :- dynamic historyBrowser/1.
-:- dynamic history/1.
 
 fieldLength(30).
 blackFieldColor(colour(gray)).
-history(['abc123', 'def456', 'ghi789']).
 fieldOffset(25,5). % fieldOffset(Top,Left).
 
 stoneImage(black,normal,'black_normal.xpm').
@@ -17,18 +15,16 @@ stoneImage(black,queen,'black_queen.xpm').
 stoneImage(white,normal,'white_normal.xpm').
 stoneImage(white,queen,'white_queen.xpm').
 
-appendToHistory(Entry) :-
-   history(List1),
-   retractall(history(_)),
-   List = [Entry | List1],
-   assertz(history(List)),
-   updateHistory.
-
 updateHistory :-
    historyBrowser(B),
-   history(List),
-   !,
-   send(B, members(List)),
+   (
+      (
+         history(List) ->
+         send(B, members(List))
+      )
+      ;
+      send(B, clear)
+   ),
    send(B, flush).
 
 updateStonePos :-

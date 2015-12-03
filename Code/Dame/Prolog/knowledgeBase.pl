@@ -1,9 +1,16 @@
 % Autor: Robert Maas
-% Datum: 01.12.2015
+% Datum: 02.12.2015
+
+:- dynamic history/1.
+:- dynamic historyUpdated/0.
+:- dynamic stonesUpdated/0.
 
 % player(Position, Color).
 player(top, black).
 player(bottom, white).
+
+:- dynamic turn/1. %turn(Color)
+:- dynamic player/1. % player(Color)
 
 % stone(Row,Col,StoneColor,Type).
 :- dynamic stone/4.

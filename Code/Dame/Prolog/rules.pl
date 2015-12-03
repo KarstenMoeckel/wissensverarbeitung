@@ -1,11 +1,12 @@
-% author: Karsten Möckel   und Christian Schütt
-% Datum: 27.11.2015
+﻿% author: Karsten Möckel   und Christian Schütt
+% Datum: 02.12.2015
 
 validMove(X1, Y1, X2, Y2, Player) :-
     numbers(X1),
     numbers(Y1),
-    numbers(X2),
-    numbers(Y2),
+    %Robert Maas: redundant see field/4
+    %numbers(X2),
+    %numbers(Y2),
     stone(Y1, X1, Color, Type),
     field(Y2, X2, FieldColor),
     player(Position, Player),
@@ -223,17 +224,19 @@ stopGame:-
 startGame(StartingPlayer):-
     (
         (
-            StartingPlayer = weiss,
-            assert(turn(white)),
-            assert(game(on)),
-            !
+            StartingPlayer = white ->
+            (
+               assert(turn(white)),
+               assert(game(on))
+            )
         )
         ;
         (
-             StartingPlayer = schwarz,
-             assert(turn(black)),
-             assert(game(on)),
-             !
+             StartingPlayer = black ->
+             (
+                assert(turn(black)),
+                assert(game(on))
+             )
         )
     )
     ;
