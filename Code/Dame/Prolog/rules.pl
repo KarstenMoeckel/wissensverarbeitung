@@ -1,17 +1,18 @@
 ﻿% author: Karsten Möckel   und Christian Schütt
-% Datum: 02.12.2015
+% Datum: 03.12.2015
 
 validMove(X1, Y1, X2, Y2, Player) :-
     numbers(X1),
     numbers(Y1),
-    %Robert Maas: redundant see field/4
+    %Robert Maas: redundant, see field/4
     %numbers(X2),
     %numbers(Y2),
-    stone(Y1, X1, Color, Type),
-    field(Y2, X2, FieldColor),
+    stone(Y1, X1, Player, Type),
+    field(Y2, X2, black),
     player(Position, Player),
-    FieldColor == 'black',
-    Player == Color,
+    %Robert Maas: checks integrated into queries above
+    %FieldColor == 'black',
+    %Player == Color,
     (
         (
             (Position == bottom ; Type == 'queen'),
@@ -130,35 +131,26 @@ targetFieldFree(X,Y):-
 
 changeTurn:-
 (
-    turn(white),
+    turn(white) ->
     retract(turn(white)),
-    assert(turn(black)),
-    !
+    assert(turn(black))
 )
  ;
 (
-    turn(black),
+    turn(black) ->
     retract(turn(black)),
-    assert(turn(white)),
-    !
+    assert(turn(white))
 ).
 
 %check if the player has the turn
 
 rightTurn(Color):-
-    turn(X),
-    (
-        (
-            Color \= X,
-            writeln('Der falsche Spiele hat versucht einen Zug zu taetigen'),
-            fail
-        )
-        ;
-        (
-            Color = X
-        )
-    ).
-
+    not(turn(Color)) ->
+       logMessage('Der falsche Spiele hat versucht einen Zug zu tätigen'),
+       fail
+   ;
+   true.
+   
 %turn a stone into a queen if possible
 turnIntoQueenIfPossible(X,Y):-
  stone(Y,X,Color,Mode),
@@ -181,32 +173,29 @@ turnIntoQueenIfPossible(X,Y):-
     )
     ;
     true
- )
-
-.
+ ).
 
 checkVictory:-
 
         %find all and count left stones for the white and black player
-        findall(Z, stone(X,Y,white,Z), WhiteStonesLeft),
+        findall(Z, stone(_,_,white,Z), WhiteStonesLeft),
         length(WhiteStonesLeft,AmountOfWhites),
 
-        findall(Z, stone(X,Y,black,Z), BlackStonesLeft),
+        findall(Z, stone(_,_,black,Z), BlackStonesLeft),
         length(BlackStonesLeft,AmountOfBlacks),
 
         (   
             (
-                AmountOfWhites = 0,
+                AmountOfWhites = 0->
                 writeln('Schwarz gewinnt!'),
                 retract(game(on)),
                 assert(game(over)),
-                assert(winner(black)),
-                !     
+                assert(winner(black))
             )
             ;
         
             (
-                AmountOfBlacks = 0,
+                AmountOfBlacks = 0->
                 writeln('Weiss gewinnt!'),
                 retract(game(on)),
                 assert(game(over)),
@@ -222,22 +211,14 @@ stopGame:-
     retractall(turn(_)).
 
 startGame(StartingPlayer):-
-    (
-        (
-            StartingPlayer = white ->
-            (
-               assert(turn(white)),
-               assert(game(on))
-            )
-        )
-        ;
-        (
-             StartingPlayer = black ->
-             (
-                assert(turn(black)),
-                assert(game(on))
-             )
-        )
-    )
-    ;
-    writeln('Bitte waehlen Sie weiss oder schwarz als beginnende Farbe').
+     (
+        StartingPlayer = white ->
+           assert(turn(white)),
+           assert(game(on))
+     )
+     ;
+     (
+        StartingPlayer = black ->
+           assert(turn(black)),
+           assert(game(on))
+     ).
