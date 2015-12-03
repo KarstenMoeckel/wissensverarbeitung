@@ -100,10 +100,9 @@ createField(Row,Col,Field) :-
    field(Row,Col, FieldColor),
    (
       (
-         FieldColor == black,
+         FieldColor == black ->
          blackFieldColor(Color),
          send(Field, fill_pattern, Color),
-         !
       )
       ;
          true

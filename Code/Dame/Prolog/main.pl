@@ -5,4 +5,5 @@ init :-
    consult('knowledgeBase'),
    consult('IO'),
    consult('rules'),
-   consult('utility').
+   consult('utility'),
+   consult('evaluation').
