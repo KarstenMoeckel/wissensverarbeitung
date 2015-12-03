@@ -15,3 +15,47 @@ manhattenDistance(X1, Y1, X2, Y2, Distance):-
 %03.12.2015
 createStoneList(List) :-
    findall(stone(Row,Col,Color,Type),stone(Row,Col,Color,Type),List).
+
+%checks Relation of Fields; manhatten-distance must be 2
+%e.g. checkRelation(1,1,2,2,buttonRight)
+checkRelation(Row1,Col1,Row2,Col2,Relation) :-
+      (
+         Row2 is Row1 + 1,
+         Col2 is Col1 + 1
+      ) ->
+         Relation = buttonRight
+   ;
+      (
+         Row2 is Row1 + 1,
+         Col2 is Col1 - 1
+      ) ->
+         Relation = buttonLeft
+   ;
+      (
+         Row2 is Row1 - 1,
+         Col2 is Col1 + 1
+      ) ->
+         Relation = topRight
+   ;
+      (
+         Row2 is Row1 - 1,
+         Col2 is Col1 - 1
+      ) ->
+         Relation = topLeft.
+      
+calculateTarget(SRow,SCol,Relation,DRow,DCol) :-
+   Relation == buttonRight ->
+      DRow = SRow + 1,
+      DCol = SCol + 1
+   ;
+   Relation == buttonLeft ->
+      DRow = SRow + 1,
+      DCol = SCol - 1
+   ;
+   Relation == topRight ->
+      DRow = SRow - 1,
+      DCol = SCol + 1
+   ;
+   Relation == topLeft ->
+      DRow = SRow - 1,
+      DCol = SCol - 1.

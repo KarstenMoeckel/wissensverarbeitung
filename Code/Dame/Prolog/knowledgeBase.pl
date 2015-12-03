@@ -2,8 +2,8 @@
 % Datum: 03.12.2015
 
 :- dynamic history/1.
-:- dynamic historyUpdated/0.
-:- dynamic stonesUpdated/0.
+:- dynamic historyUpdated/0. %flag for GUI for pending history changes
+:- dynamic stonesUpdated/0. % flag for GUI for pending stone changes
 
 % player(Position, Color).
 player(top, black).
@@ -26,8 +26,9 @@ field(Row,Col,Color) :-
    R is Sum mod 2,
    (
       R==1 ->
-      Color='black';
-      Color='white'
+         Color='black'
+      ;
+         Color='white'
    ).
 
 numbers(X) :- between(1,8,X).
@@ -35,10 +36,8 @@ numbers(X) :- between(1,8,X).
 %evalValue(StoneType, Position, Value)
 evalValue(normal, normal, 1000). %nothing special at stone position
 evalValue(normal, becomeQueen, 1500). %stone can become a queen in next turn
-evalValue(normal, canHitNormal, 1300). %stone can hit a normal stone in next turn
-evalValue(normal, canHitNormal, 1600). %stone can hit a queen in next turn
-evalValue(normal, canBeHitted, 200). %stone can be hitted by enemy
+evalValue(normal, canHitNormal, 1700). %stone can hit a normal stone in next turn
+evalValue(normal, canHitQueen, 1900). %stone can hit a queen in next turn
 evalValue(queen, normal, 2000). %nothing special at queen position
-evalValue(queen, canHitNormal, 2300). %queen can hit a normal Stone in next turn
-evalValue(queen, canHitqueen, 2600). %queen can hit a queen in next turn
-evalValue(queen, canBeHitted, 100). %queen can be hitted by enemy
+evalValue(queen, canHitNormal, 2700). %queen can hit a normal Stone in next turn
+evalValue(queen, canHitQueen, 2900). %queen can hit a queen in next turn

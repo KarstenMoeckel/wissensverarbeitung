@@ -119,12 +119,21 @@ findAndDetroyOverjumpedStone(X1,Y1, X2, Y2, Color):-
     Color \= TargetColor,
     retract(stone(TargetX , TargetY , _, _)).
 
+% author: Robert Maas
+% Datum: 03.12.2015
+fieldFree([],_,_).
+fieldFree([stone(R,C,_,_)|GameState], Row,Col) :-
+   (R == Row,
+   C == Col) ->
+      fail
+   ;
+      fieldFree(GameState,Row,Col).
+
 % author: Christian Schütt
 % Datum: 29.11.2015
 
 targetFieldFree(X,Y):-
     not(stone(Y,X, _, _)).
-
 
 
 %change the turn of the player
