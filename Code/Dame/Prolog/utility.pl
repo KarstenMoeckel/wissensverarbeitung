@@ -23,13 +23,13 @@ checkRelation(Row1,Col1,Row2,Col2,Relation) :-
          Row2 is Row1 + 1,
          Col2 is Col1 + 1
       ) ->
-         Relation = buttonRight
+         Relation = bottomRight
    ;
       (
          Row2 is Row1 + 1,
          Col2 is Col1 - 1
       ) ->
-         Relation = buttonLeft
+         Relation = bottomLeft
    ;
       (
          Row2 is Row1 - 1,
@@ -44,18 +44,18 @@ checkRelation(Row1,Col1,Row2,Col2,Relation) :-
          Relation = topLeft.
       
 calculateTarget(SRow,SCol,Relation,DRow,DCol) :-
-   Relation == buttonRight ->
-      DRow = SRow + 1,
-      DCol = SCol + 1
+   Relation == bottomRight ->
+      DRow is SRow + 1,
+      DCol is SCol + 1
    ;
-   Relation == buttonLeft ->
-      DRow = SRow + 1,
-      DCol = SCol - 1
+   Relation == bottomLeft ->
+      DRow is SRow + 1,
+      DCol is SCol - 1
    ;
    Relation == topRight ->
-      DRow = SRow - 1,
-      DCol = SCol + 1
+      DRow is SRow - 1,
+      DCol is SCol + 1
    ;
    Relation == topLeft ->
-      DRow = SRow - 1,
-      DCol = SCol - 1.
+      DRow is SRow - 1,
+      DCol is SCol - 1.

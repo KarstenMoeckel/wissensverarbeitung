@@ -14,6 +14,7 @@ player(bottom, white).
 
 % stone(Row,Col,StoneColor,Type).
 :- dynamic stone/4.
+stone(2,3,black,normal).
 stone(3,4,black,normal).
 stone(4,5,white,normal).
 stone(8,1,black,queen).
