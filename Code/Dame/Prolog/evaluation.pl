@@ -1,92 +1,62 @@
 % Autor: Robert Maas
-% Datum: 03.12.2015
+% Datum: 07.12.2015
 
-%VVVVVVVVVVVVVVVEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRYYYYYYYYYYYYYYYY
-%simple evaluation algorithm based uppon stone count
+%simple evaluation algorithm
 evaluateGame([],_, 0,_).
 evaluateGame([Stone| State], World, EvaluationResult, ViewColor) :-
    evaluateGame(State, World, Result, ViewColor),
    evaluateStone(World, Stone, Value, ViewColor),
-   EvaluationResult is Value + Result.
-   
-evaluateStone(World, Stone, Result, ViewColor) :-
-   Stone = stone(_,_,Color,_),
-   evaluateStone(World, Stone, Result1),
    (
-      Color == ViewColor ->
-         Result is Result1
+      Stone = stone(_,_,ViewColor,_)->
+         EvaluationResult is Value + Result
       ;
-         Result is Result1 * -1
+         EvaluationResult is Result - Value
    ).
 
-evaluateStone(World, Stone,Result) :-
+evaluateStone(World, Stone,Result, ViewColor) :-
    Stone = stone(_,_,_,Type),
    neighbours(Stone,World, Neighbours),
    (
-      checkHitPossibility(World,Stone,Neighbours, Victim) ->
-      (
-         Victim = stone(_,_,_,VType),
-         VType == normal ->
-            evalValue(Type,canHitNormal,Result)
-         ;
-            evalValue(Type,canHitQueen,Result)
-      )
+      checkHit(World, ViewColor, Stone,Neighbours, EvalPos) ->
+         evalValue(Type, EvalPos,Result)
       ;
          evalValue(Type,normal,Result)
+   ).
+
+checkHit(World, ViewColor, Stone, Neighbours, EvalPos) :-
+   checkHitPossibility(World,Stone,Neighbours) ->
+   (
+      (
+         Stone = stone(_,_,ViewColor,_) ->
+            EvalPos = canHit
+         ;
+            EvalPos = willBeHitted
+      )
    ).
 
 %searches for neighbours of given stone
 neighbours(_,[],[]).
 neighbours(stone(Row,Col,_,_), [CheckStone |GameState], Neighbours) :-
-   neighbours(stone(Row,Col,_,_),GameState,Neighbours2),
+   neighbours(stone(Row,Col,_,_),GameState,FoundNeighbours),
    (
       (
          CheckStone = stone(Row2,Col2,_,_),
          checkRelation(Row,Col,Row2,Col2,Relation)
       ) ->
-         Neighbours = [[CheckStone, Relation] | Neighbours2]
+         Neighbours = [[CheckStone, Relation] | FoundNeighbours]
       ;
-         Neighbours = Neighbours2
+         Neighbours = FoundNeighbours
    ).
 
 checkHitPossibility(_,_,[]) :- fail.
-checkHitPossibility(World,Hitter,[[Victim2,Relation]|Neighbours], Victim) :-
-   canHit(World,Hitter,Relation,Victim2) ->
-      Victim = Victim2
+checkHitPossibility(World,Hitter,[Entry|Neighbours]) :-
+   canHit(World,Hitter,Entry) ->
+      true
    ;
-      checkHitPossibility(World,Hitter,Neighbours, Victim).
+      checkHitPossibility(World,Hitter,Neighbours).
 
-canHit(World, Hitter, Relation, stone(VRow,VCol,VColor,_)) :-
-   Hitter = stone(_,_,HColor,_),
-   HColor \== VColor,
+canHit(World, Hitter, [stone(VRow,VCol,VColor,_), Relation]) :-
+   not(Hitter = stone(_,_,VColor,_)),
    moveDirections(Hitter, Relation),
    calculateTarget(VRow,VCol,Relation,TRow,TCol),
    fieldFree(World,TRow,TCol).
-
-moveDirections(stone(_,_,_,queen), Direction):-
-      Direction = bottomLeft
-   ;
-      Direction = bottomRight
-   ;
-      Direction = topLeft
-   ;
-      Direction = topRight.
-
-moveDirections(stone(_,_,Color,normal), Direction) :-
-   player(Position, Color),
-   (
-      Position == top ->
-      (
-         Direction = bottomLeft
-         ;
-         Direction = bottomRight
-      )
-      ;
-      Position == bottom ->
-      (
-         Direction = topLeft
-         ;
-         Direction = topRight
-      )
-   ).
-      

@@ -37,8 +37,8 @@ numbers(X) :- between(1,8,X).
 %evalValue(StoneType, Position, Value)
 evalValue(normal, normal, 1000). %nothing special at stone position
 evalValue(normal, becomeQueen, 1500). %stone can become a queen in next turn
-evalValue(normal, canHitNormal, 1700). %stone can hit a normal stone in next turn
-evalValue(normal, canHitQueen, 1900). %stone can hit a queen in next turn
+evalValue(normal, canHit, 1600). %stone can hit a normal stone
+evalValue(normal, willBeHitted, 100).
 evalValue(queen, normal, 2000). %nothing special at queen position
-evalValue(queen, canHitNormal, 2700). %queen can hit a normal Stone in next turn
-evalValue(queen, canHitQueen, 2900). %queen can hit a queen in next turn
+evalValue(queen, canHit, 2600). %queen can hit a normal Stone in next turn
+evalValue(queen, willBeHitted, 200).

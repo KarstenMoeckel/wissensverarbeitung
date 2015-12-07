@@ -59,3 +59,30 @@ calculateTarget(SRow,SCol,Relation,DRow,DCol) :-
    Relation == topLeft ->
       DRow is SRow - 1,
       DCol is SCol - 1.
+
+moveDirections(stone(_,_,_,queen), Direction):-
+      Direction = bottomLeft
+   ;
+      Direction = bottomRight
+   ;
+      Direction = topLeft
+   ;
+      Direction = topRight.
+
+moveDirections(stone(_,_,Color,normal), Direction) :-
+   player(Position, Color),
+   (
+      Position == top ->
+      (
+         Direction = bottomLeft
+         ;
+         Direction = bottomRight
+      )
+      ;
+      Position == bottom ->
+      (
+         Direction = topLeft
+         ;
+         Direction = topRight
+      )
+   ).
