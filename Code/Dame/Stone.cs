@@ -14,8 +14,8 @@ namespace Dame
         {
             Row = Convert.ToInt32(stoneVector[0].ToString());
             Column = Convert.ToInt32(stoneVector[1].ToString());
-            Color = (StoneColor)Enum.Parse(typeof(StoneColor), stoneVector[2].ToString());
-            Type = (StoneType)Enum.Parse(typeof(StoneType), stoneVector[3].ToString());
+            Color = (StoneColor)Enum.Parse(typeof(StoneColor), stoneVector[2].ToString(), true);
+            Type = (StoneType)Enum.Parse(typeof(StoneType), stoneVector[3].ToString(), true);
         }
     }
 }

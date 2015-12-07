@@ -31,7 +31,7 @@
         <Menu IsMainMenu="True" Grid.ColumnSpan="3" Height="20" VerticalAlignment="Top">
             <MenuItem Header="Datei">
                 <MenuItem Header="StartPosition laden" Click="loadStartPos_Click"/>
-                <MenuItem Header="Optionen"/>
+                <MenuItem Header="Optionen" Click="Options_Click"/>
                 <MenuItem Header="Beenden"/>
             </MenuItem>
         </Menu>

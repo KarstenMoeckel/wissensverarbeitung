@@ -87,13 +87,13 @@ namespace Dame
         
         private Uri GetStoneImageUri(StoneColor color, StoneType type)
         {
-            if (color == StoneColor.black && type == StoneType.normal)
+            if (color == StoneColor.Black && type == StoneType.Normal)
                 return new Uri("pack://application:,,,/Images/black_normal.png");
-            if (color == StoneColor.black && type == StoneType.queen)
+            if (color == StoneColor.Black && type == StoneType.Queen)
                 return new Uri("pack://application:,,,/Images/black_queen.png");
-            if (color == StoneColor.white && type == StoneType.normal)
+            if (color == StoneColor.White && type == StoneType.Normal)
                 return new Uri("pack://application:,,,/Images/white_normal.png");
-            if (color == StoneColor.white && type == StoneType.queen)
+            if (color == StoneColor.White && type == StoneType.Queen)
                 return new Uri("pack://application:,,,/Images/white_queen.png");
             throw new ArgumentException("Invalid combination of parameters");
         }
@@ -120,6 +120,12 @@ namespace Dame
                 if (!engine.LoadFile(dialog.FileName))
                     MessageBox.Show("Die StartPositionen konnen nicht geladen werden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        private void Options_Click(object sender, RoutedEventArgs e)
+        {
+            Options opt = new Options(engine);
+            opt.ShowDialog();
         }
     }
 }
