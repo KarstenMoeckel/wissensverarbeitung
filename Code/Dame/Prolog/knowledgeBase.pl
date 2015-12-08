@@ -1,16 +1,16 @@
 % Autor: Robert Maas
-% Datum: 03.12.2015
+% Datum: 08.12.2015
 
 :- dynamic history/1.
 :- dynamic historyUpdated/0. %flag for GUI for pending history changes
 :- dynamic stonesUpdated/0. % flag for GUI for pending stone changes
+:- dynamic option/2. %option(Type,Value), e.g. option(searchDepth,5).
+:- dynamic turn/1. %turn(Color), color of player, who has to move
+:- dynamic player/1. % player(Color), color of human player
 
 % player(Position, Color).
 player(top, black).
 player(bottom, white).
-
-:- dynamic turn/1. %turn(Color), color of player, who has to move
-:- dynamic player/1. % player(Color), color of human player
 
 % stone(Row,Col,StoneColor,Type).
 :- dynamic stone/4.
