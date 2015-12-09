@@ -51,7 +51,7 @@ validMove(Stone, Direction, Player, SrcList) :-
     )
     .
 
-validMove(X1, Y1, X2, Y2, Player, SrcList) :-
+validMove(X1, Y1, X2, Y2, Player, SrcList):-
     numbers(X1),
     numbers(Y1),
     member(stone(Y1, X1, Player, Type), SrcList),
@@ -78,82 +78,129 @@ validMove(X1, Y1, X2, Y2, Player, SrcList) :-
     )
 .
 
+rightPlayer(X,Y):-
+    stone(Y,X,Color,_),
+    turn(CurrentPlayer),
+    CurrentPlayer = Color.
+
 %% Player   black, white
-moveStone(X1, Y1, X2, Y2, Player):-
+moveStone(X1, Y1, X2, Y2):-
 % author: Christian Schütt
 % Datum: 29.11.2015
 
-%is game is runnin, the right player does the turn and the targetfield is free
+% author: Christian Schütt
+% Datum: 29.11.2015
     game(on),
-    rightTurn(Player),
+    rightPlayer(X1,Y1),
+
+    (   
+        (isMove(X1,Y1,X2,Y2) -> setStoneToNewPosition(X1,Y1,X2,Y2),turnIntoKingIfPossible(X2,Y2),
+                                changeTurn)
+    ;
+        (isJump(X1,Y1,X2,Y2) -> detroyJumpedStone,setStoneToNewPosition(X1,Y1,X2,Y2),turnIntoKingIfPossible(X2,Y2),
+                                changeTurn)
+
+    ),  
+
+    gameOver,
+   
+    updateStonePos,  
+    !.
 
 
-    %is this a normal move or jump?
-    manhattenDistance(Y1,X1,Y2,X2,Dist),
 
-    isMovePossible(X1,Y1,X2,Y2,Player, Dist),
-
-%Karsten Möckel
-% Datum: 27.11.2015
-
-   % validMove(X1, Y1, X2, Y2, Player),
-% author: Christian Schütt
-% Datum: 29.11.2015
-
-    %% update stone-position, turn into Queen if possible und update GUI
+setStoneToNewPosition(X1,Y1,X2,Y2):-
     stone(Y1 , X1 , Color, StoneMode),
     retract(stone(Y1 , X1 , _ , _)),
-    assert(stone(Y2 , X2 , Color, StoneMode)),
+    assert(stone(Y2 , X2 , Color, StoneMode)).
 
-    turnIntoQueenIfPossible(X2,Y2),
-    changeTurn,
-    updateStonePos,
-    checkVictory.
+isJump(X1,Y1,X2,Y2):-
+    manhattenDistance(Y1,X1,Y2,X2,Distance),
+        
+    (Distance = 4) -> createStoneList(List),
+                      stone(Y1,X1,Color,_),
+                      validMove(X1, Y1, X2, Y2, Color, List ),
+                      isFieldFree(X2,Y2), 
+                      isStoneBetween(Y1,X1,Y2,X2,StoneX,StoneY),
+                      rightColorToBeat(StoneX,StoneY),
+                      keepInMindToDestroyLater(StoneX,StoneY).
 
 
 
-isMovePossible(X1,Y1,X2,Y2,Color, Distance, SrcList):-
-(
-    (
-        % no jump, just move
-        Distance  = 2,
-        validMove(X1, Y1, X2, Y2, Color, SrcList),
-        targetFieldFree(X2,Y2)
-    )
-    ;
-    (   % jump
-        Distance > 2,
-        validMove(X1, Y1, X2, Y2 , Color, SrcList),
-        targetFieldFree(X2,Y2),
-        findAndDetroyOverjumpedStone(Y1, X1, Y2, X2,Color)
-    )
-).
+isMove(X1,Y1,X2,Y2):-
+    manhattenDistance(Y1,X1,Y2,X2,Distance),
 
-findAndDetroyOverjumpedStone(X1,Y1, X2, Y2, Color):-
-    (
+    (Distance  = 2) ->createStoneList(List),
+                      stone(Y1,X1,Color,_), 
+                      validMove(X1, Y1, X2, Y2, Color, List ),
+                      isFieldFree(X2,Y2).
+
+keepInMindToDestroyLater(X,Y):-
+    assert(toDestroyStone(X,Y)).
+
+
+topLeftNeighbor(X, Y, NX, NY):-
+        NX is X - 1,
+        NY is Y -1.    
+
+topRightNeighbor(X, Y, NX, NY):-
+        NX is X + 1,
+        NY is Y - 1.
+
+bottomLeftNeighbor(X, Y, NX, NY):-
+        NX is X - 1,
+        NY is Y + 1.
+
+bottomRightNeighbor(X, Y, NX, NY):-
+        NX is X  + 1,
+        NY is Y + 1.
+
+rightColorToBeat(X,Y):-
+    turn(CurrentPlayer),
+    stone(X,Y,Color,_),
+    Color \= CurrentPlayer.
+        
+
+isOver(X1,X2):-
+    X1 > X2.
+
+isUnder(X1,X2):-
+    X1 < X2.
+
+isRightOf(Y1,Y2):-
+    Y1 < Y2.
+
+isLeftOf(Y1,Y2):-
+    Y1 > Y2.
+    
+
+isStoneBetween(X1,Y1,X2,Y2, NX, NY):-
+      stone(X1,Y1,_,_),
+      (
         (
-            X1 > X2,
-            TargetX is X1 - 1
+            (isOver(X1, X2), isLeftOf(Y1,Y2)) -> topLeftNeighbor(X1,Y1, NX, NY)
         )
         ;
         (
-            X1 < X2,
-            TargetX is X1 +1
+            (isOver(X1, X2), isRightOf(Y1,Y2)) -> topRightNeighbor(X1,Y1, NX, NY)
         )
         ;
         (
-             Y1 > Y2,
-            TargetY is X1 - 1
+            (isUnder(X1, X2), isLeftOf(Y1,Y2)) -> bottomLeftNeighbor(X1,Y1, NX, NY)
         )
         ;
         (
-            Y1 < Y2,
-            TargetY is X1 + 1
+            (isUnder(X1, X2), isRightOf(Y1,Y2)) -> bottomRightNeighbor(X1,Y1, NX, NY)
         )
-    ),
-    stone(TargetX,TargetY, TargetColor,_),
-    Color \= TargetColor,
-    retract(stone(TargetX , TargetY , _, _)).
+     ),
+     stone( NX,NY, _,_).
+
+
+detroyJumpedStone:-
+    toDestroyStone(X,Y),
+    retract(stone(X,Y,_,_)),
+    retract(toDestroyStone(X,Y)).
+
 
 % author: Robert Maas
 % Datum: 03.12.2015
@@ -168,7 +215,7 @@ fieldFree([stone(R,C,_,_)|GameState], Row,Col) :-
 % author: Christian Schütt
 % Datum: 29.11.2015
 
-targetFieldFree(X,Y):-
+isFieldFree(X,Y):-
     not(stone(Y,X, _, _)).
 
 
@@ -196,59 +243,70 @@ rightTurn(Color):-
    ;
    true.
 
-%turn a stone into a queen if possible
-turnIntoQueenIfPossible(X,Y):-
- stone(Y,X,Color,Mode),
-
- (
+turnIntoKingIfPossible(X,Y):-
     (
-        Mode \= queen,
-        Color = white,
-        Y = 1,
-        retract(stone(Y , X , _, _)),
-        assert(stone(Y , X , Color, queen))
+        notAKing(X,Y),
+        stoneReachedLastRow(X,Y),
+        turnIntoKing(X,Y)
     )
     ;
+    true.
+
+notAKing(Column,Row):-
+    stone(Row,Column,_,Mode),
+    Mode \= queen.
+
+stoneReachedLastRow(Column,Row):-
+    stone(Row,Column,Color,_),
     (
-        Mode \= queen,
-        Color  = black,
-        Y = 8,
-        retract(stone(Y , X , _, _)),
-        assert(stone(Y , X , Color, queen))
-    )
-    ;
-    true
- ).
-
-checkVictory:-
-
-        %find all and count left stones for the white and black player
-        findall(Z, stone(_,_,white,Z), WhiteStonesLeft),
-        length(WhiteStonesLeft,AmountOfWhites),
-
-        findall(Z, stone(_,_,black,Z), BlackStonesLeft),
-        length(BlackStonesLeft,AmountOfBlacks),
-
         (
+            Color  = black,
+            Row = 8
+        )
+        ;
+        (   
+            Color = white,
+            Row = 1
+        )
+    ).
+
+
+turnIntoKing(Column,Row):-
+   stone(Row,Column,Color,_),
+   retract(stone(Row , Column , _, _)),
+   assert(stone(Row , Column , Color, queen)).
+
+
+howManyStonesLeftOf(Color,Count):-
+    findall(Z, stone(_,_,Color,Z), StonesLeft),
+    length(StonesLeft,Count).
+
+doesColorLose(Color):-
+     howManyStonesLeftOf(Color,AmountOfStone),
+     AmountOfStone = 0.
+
+registerWinner(Color):-
+     assert(winner(Color)).
+
+endGame:-
+     retract(game(on)),
+     assert(game(over)).
+
+gameOver:-
+        (   
             (
-                AmountOfWhites = 0->
-                writeln('Schwarz gewinnt!'),
-                retract(game(on)),
-                assert(game(over)),
-                assert(winner(black))
+                doesColorlose(white) -> registerWinner(black), endGame,
+                !     
             )
             ;
-
+        
             (
-                AmountOfBlacks = 0->
-                writeln('Weiss gewinnt!'),
-                retract(game(on)),
-                assert(game(over)),
-                assert(winner(white))
+                doesColorlose(black) -> registerWinner(white),endGame,
+                !        
             )
             ;
             true
-        ).
+        ). 
 
 stopGame:-
     retractall(stone(_,_,_,_)),
