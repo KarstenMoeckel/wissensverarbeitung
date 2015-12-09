@@ -8,7 +8,7 @@ evaluateGame([Stone| State], World, EvaluationResult, ViewColor) :-
    evaluateGame(State, World, Result, ViewColor),
    evaluateStone(World, Stone, Value, ViewColor),
    EvaluationResult is Value + Result.
-   
+
 evaluateStone(World, Stone, Result, ViewColor) :-
    Stone = stone(_,_,Color,_),
    evaluateStone(World, Stone, Result1),
@@ -89,4 +89,3 @@ moveDirections(stone(_,_,Color,normal), Direction) :-
          Direction = topRight
       )
    ).
-      

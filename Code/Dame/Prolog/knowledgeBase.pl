@@ -5,7 +5,8 @@
 :- dynamic historyUpdated/0. %flag for GUI for pending history changes
 :- dynamic stonesUpdated/0. % flag for GUI for pending stone changes
 
-% player(Position, Color).
+:- dynamic player/2. % player(Position, Color).
+
 player(top, black).
 player(bottom, white).
 
@@ -14,11 +15,18 @@ player(bottom, white).
 
 % stone(Row,Col,StoneColor,Type).
 :- dynamic stone/4.
-stone(2,3,black,normal).
-stone(3,4,black,normal).
-stone(4,5,white,normal).
+%stone(2,3,black,normal).
+%stone(3,4,black,normal).
+%stone(4,5,white,normal).
 stone(8,1,black,queen).
 stone(2,7,white,queen).
+
+%node(parent, value, world, player, childnodes[])
+% parent:       node one level above.
+% value:        value of the node from the evaluation function.
+% world:        stones of the players.
+% childnodes:   list of nodes one Level below.
+:- dynamic node/5. %node(parent, value, world, player, childnodes[])
 
 field(Row,Col,Color) :-
    numbers(Row),

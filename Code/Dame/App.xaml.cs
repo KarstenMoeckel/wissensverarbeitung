@@ -18,7 +18,7 @@ namespace Dame
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            //Environment.SetEnvironmentVariable("SWI_HOME_DIR", @"C:\Program Files (x86)\swipl\");
+            //Environment.SetEnvironmentVariable("SWI_HOME_DIR", @"E:\Program Files\swipl");
             PlEngine.Initialize(new string[] { "-q" });
             PlQuery.PlCall("chdir('" + System.IO.Path.Combine(Environment.CurrentDirectory, "Prolog").Replace('\\','/') + "')");
             if (!PlQuery.PlCall("consult('main')"))

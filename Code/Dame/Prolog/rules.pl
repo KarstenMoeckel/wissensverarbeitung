@@ -1,42 +1,78 @@
 ﻿% author: Karsten Möckel   und Christian Schütt
 % Datum: 03.12.2015
 
-validMove(X1, Y1, X2, Y2, Player) :-
+moveTopLeft(X1, Y1, X2, Y2) :-
+    X2 is (X1 - 1), Y2 is (Y1 - 1).
+moveTopRight(X1, Y1, X2, Y2) :-
+    X2 is (X1 + 1), Y2 is (Y1 - 1).
+moveBottomLeft(X1, Y1, X2, Y2) :-
+    X2 is (X1 - 1), Y2 is (Y1 + 1).
+moveBottomRight(X1, Y1, X2, Y2) :-
+    X2 is (X1 + 1), Y2 is (Y1 + 1).
+
+jumpTopLeft(X1, Y1, X2, Y2) :-
+    X2 is (X1 - 2), Y2 is (Y1 - 2).
+jumpTopRight(X1, Y1, X2, Y2) :-
+    X2 is (X1 + 2), Y2 is (Y1 - 2).
+jumpBottomLeft(X1, Y1, X2, Y2) :-
+    X2 is (X1 - 2), Y2 is (Y1 + 2).
+jumpBottomRight(X1, Y1, X2, Y2) :-
+    X2 is (X1 + 2), Y2 is (Y1 + 2).
+
+
+
+validMove(Stone, Direction, Player, SrcList) :-
+    arg(1, Stone, Y1),
+    arg(2, Stone, X1),
+    (
+        Direction == topLeft,
+            (
+                moveTopLeft(X1, Y1, X2, Y2),
+                validMove(X1, Y1, X2, Y2, Player, SrcList)
+            )
+        ;
+        Direction == topRight,
+            (
+                moveTopRight(X1, Y1, X2, Y2),
+                validMove(X1, Y1, X2, Y2, Player, SrcList)
+            )
+        ;
+        Direction == bottomLeft,
+            (
+                moveBottomLeft(X1, Y1, X2, Y2),
+                validMove(X1, Y1, X2, Y2, Player, SrcList)
+            )
+        ;
+        Direction == bottomRight,
+            (
+                moveBottomRight(X1, Y1, X2, Y2),
+                validMove(X1, Y1, X2, Y2, Player, SrcList)
+            )
+    )
+    .
+
+validMove(X1, Y1, X2, Y2, Player, SrcList) :-
     numbers(X1),
     numbers(Y1),
-    %Robert Maas: redundant, see field/4
-    %numbers(X2),
-    %numbers(Y2),
-    stone(Y1, X1, Player, Type),
+    member(stone(Y1, X1, Player, Type), SrcList),
     field(Y2, X2, black),
     player(Position, Player),
-    %Robert Maas: checks integrated into queries above
-    %FieldColor == 'black',
-    %Player == Color,
     (
         (
             (Position == bottom ; Type == 'queen'),
             (
-                %% move top left
-                (X2 is (X1 - 1), Y2 is (Y1 - 1), !);
-                %% move top right
-                (X2 is (X1 + 1), Y2 is (Y1 - 1), !);
-                %% jump top left
-                (X2 is (X1 - 2), Y2 is (Y1 - 2), !);
-                % jump top left
-                (X2 is (X1 + 2), Y2 is (Y1 - 2), !)
+                moveTopLeft(X1, Y1, X2, Y2);
+                moveTopRight(X1, Y1, X2, Y2);
+                jumpTopLeft(X1, Y1, X2, Y2);
+                jumpTopRight(X1, Y1, X2, Y2)
             )
             ;
             (Position == top ; Type == 'queen'),
             (
-                %% move bottom left
-                (X2 is (X1 - 1), Y2 is (Y1 + 1), !);
-                %% move bottom right
-                (X2 is (X1 + 1), Y2 is (Y1 + 1), !);
-                %% jump bottom left
-                (X2 is (X1 - 2), Y2 is (Y1 + 2), !);
-                %% jump bottom right
-                (X2 is (X1 + 2), Y2 is (Y1 + 2), !)
+                moveBottomLeft(X1, Y1, X2, Y2);
+                moveBottomRight(X1, Y1, X2, Y2);
+                jumpBottomLeft(X1, Y1, X2, Y2);
+                jumpBottomRight(X1, Y1, X2, Y2)
             )
         )
     )
@@ -46,11 +82,11 @@ validMove(X1, Y1, X2, Y2, Player) :-
 moveStone(X1, Y1, X2, Y2, Player):-
 % author: Christian Schütt
 % Datum: 29.11.2015
-    
+
 %is game is runnin, the right player does the turn and the targetfield is free
     game(on),
     rightTurn(Player),
-    
+
 
     %is this a normal move or jump?
     manhattenDistance(Y1,X1,Y2,X2,Dist),
@@ -68,7 +104,7 @@ moveStone(X1, Y1, X2, Y2, Player):-
     stone(Y1 , X1 , Color, StoneMode),
     retract(stone(Y1 , X1 , _ , _)),
     assert(stone(Y2 , X2 , Color, StoneMode)),
-   
+
     turnIntoQueenIfPossible(X2,Y2),
     changeTurn,
     updateStonePos,
@@ -76,18 +112,18 @@ moveStone(X1, Y1, X2, Y2, Player):-
 
 
 
-isMovePossible(X1,Y1,X2,Y2,Color, Distance):-
+isMovePossible(X1,Y1,X2,Y2,Color, Distance, SrcList):-
 (
     (
         % no jump, just move
         Distance  = 2,
-        validMove(X1, Y1, X2, Y2, Color),
+        validMove(X1, Y1, X2, Y2, Color, SrcList),
         targetFieldFree(X2,Y2)
     )
     ;
     (   % jump
         Distance > 2,
-        validMove(X1, Y1, X2, Y2 , Color),
+        validMove(X1, Y1, X2, Y2 , Color, SrcList),
         targetFieldFree(X2,Y2),
         findAndDetroyOverjumpedStone(Y1, X1, Y2, X2,Color)
     )
@@ -159,12 +195,12 @@ rightTurn(Color):-
        fail
    ;
    true.
-   
+
 %turn a stone into a queen if possible
 turnIntoQueenIfPossible(X,Y):-
  stone(Y,X,Color,Mode),
- 
- (  
+
+ (
     (
         Mode \= queen,
         Color = white,
@@ -193,7 +229,7 @@ checkVictory:-
         findall(Z, stone(_,_,black,Z), BlackStonesLeft),
         length(BlackStonesLeft,AmountOfBlacks),
 
-        (   
+        (
             (
                 AmountOfWhites = 0->
                 writeln('Schwarz gewinnt!'),
@@ -202,21 +238,21 @@ checkVictory:-
                 assert(winner(black))
             )
             ;
-        
+
             (
                 AmountOfBlacks = 0->
                 writeln('Weiss gewinnt!'),
                 retract(game(on)),
                 assert(game(over)),
-                assert(winner(white))    
+                assert(winner(white))
             )
             ;
             true
-        ). 
+        ).
 
 stopGame:-
     retractall(stone(_,_,_,_)),
-    retractall(game(_)),   
+    retractall(game(_)),
     retractall(turn(_)).
 
 startGame(StartingPlayer):-
