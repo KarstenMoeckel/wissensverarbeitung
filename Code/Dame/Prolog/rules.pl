@@ -19,13 +19,13 @@ jumpBottomRight(Source, Destination) :-
    hasRelation(Source,Tmp,bottomRight),
    hasRelation(Tmp,Destination,bottomRight).
 
-validMove(stone(Source,_,_), Direction, Player, SrcList) :-
+validMove(stone(Source,_,_), Direction, Player, World) :-
    hasRelation(Source,Destination,Direction),
-   validMove(Source, Destination, Player, SrcList).
+   validMove(Source, Destination, Player, World).
 
-validMove(Source, Destination, Player, SrcList):-
+validMove(Source, Destination, Player, World):-
     field(Source,black),
-    member(stone(Source, Player, Type), SrcList),
+    member(stone(Source, Player, Type), World),
     field(Destination, black),
     player(Position, Player),
     (
