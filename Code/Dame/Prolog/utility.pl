@@ -20,7 +20,9 @@ createStoneList(List) :-
 %  OR: +Field1, --Field2, +Relation
 %checks Relation of Fields; manhatten-distance must be 2
 %Relation: <Field2> is <Relation> of <Field1>
-hasRelation(field(Row1,Col1),field(Row2,Col2),Relation) :-
+hasRelation(field(Row1,Col1),Field2,Relation) :-
+   nonvar(Field2),
+   Field2 = field(Row2,Col2),
    (
       (
          Row2 =:= Row1 + 1,

@@ -21,8 +21,7 @@ namespace Dame
     public partial class MainWindow : Window
     {
         private Engine engine;
-        private int moveSourceRow;
-        private int moveSourceCol;
+        private Field moveSourceField;
 
         public MainWindow()
         {
@@ -30,8 +29,6 @@ namespace Dame
             engine = new Engine();
             engine.HistoryChanged += Engine_HistoryChanged;
             engine.StonesChanged += Engine_StonesChanged;
-            moveSourceCol = 0;
-            moveSourceRow = 0;
         }
 
         private void Engine_StonesChanged(object sender, StoneChangedEventArgs e)
@@ -46,9 +43,10 @@ namespace Dame
                     Image img = new Image();
                     img.Source = image;
                     img.Stretch = Stretch.Fill;
-                    Button btn = gameField.Children.OfType<Button>().FirstOrDefault((b) => Grid.GetColumn(b) == stone.Column && Grid.GetRow(b) == stone.Row);
+                    Field f = stone.Field;
+                    Button btn = gameField.Children.OfType<Button>().FirstOrDefault((b) => Grid.GetColumn(b) == f.Column && Grid.GetRow(b) == f.Row);
                     if (btn == null)
-                        throw new Exception(string.Format("Could not find button in Cell {0}/{1}", stone.Row, stone.Column));
+                        throw new Exception(string.Format("Could not find button in Cell {0}/{1}", f.Row, f.Column));
                     btn.Content = img;
                 }
             }));
@@ -69,14 +67,14 @@ namespace Dame
             Button b = (Button)sender;
             int row = Grid.GetRow(b);
             int col = Grid.GetColumn(b);
-            if (moveSourceRow == 0)
+            if (moveSourceField == null)
             {
-                moveSourceCol = col;
-                moveSourceRow = row;
+                moveSourceField = new Field(row, col);
             }
             else
             {
-                engine.MoveStone(moveSourceRow, moveSourceCol, row, col);
+                engine.MoveStone(moveSourceField, new Field(row, col));
+                moveSourceField = null;
             }
         }
         

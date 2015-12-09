@@ -7,6 +7,7 @@
 :- dynamic option/2. %option(Type,Value), e.g. option(searchDepth,5).
 :- dynamic turn/1. %turn(Color), color of player, who has to move
 :- dynamic player/1. % player(Color), color of human player
+:- dynamic game/1.
 
 % stone(field(Row,Col),StoneColor,Type).
 :- dynamic stone/3.

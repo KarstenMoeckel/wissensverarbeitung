@@ -225,13 +225,13 @@ endGame:-
      assert(game(over)).
 
 gameOver:-
-   doesColorlose(white) ->
+   doesColorLose(white) ->
       (
          registerWinner(black),
          endGame
       )
    ;
-   doesColorlose(black) ->
+   doesColorLose(black) ->
       (
          registerWinner(white),
          endGame
@@ -244,7 +244,9 @@ stopGame:-
     retractall(game(_)),
     retractall(turn(_)).
 
-startGame(StartingPlayer):-
+startGame :-
+   option(startColor, StartingPlayer),
+   (
    StartingPlayer == white ->
       (
          assert(turn(white)),
@@ -255,4 +257,5 @@ startGame(StartingPlayer):-
       (
          assert(turn(black)),
          assert(game(on))
-      ).
+      )
+   ).

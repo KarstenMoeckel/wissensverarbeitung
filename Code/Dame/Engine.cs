@@ -22,7 +22,7 @@ namespace Dame
         {
             historyThread = new Thread(new ThreadStart(CheckHistory_Thread));
             stoneThread = new Thread(new ThreadStart(CheckStones_Thread));
-            Options = new Engine.Option();
+            Options = new Option();
         }
 
         public void Init()
@@ -35,6 +35,7 @@ namespace Dame
         public void Start()
         {
             Options.Save();
+            PlQuery.PlCall("startGame");
         }
 
         public bool LoadFile(string file)
@@ -66,7 +67,7 @@ namespace Dame
             {
                 if (PlQuery.PlCall("stonesUpdated"))
                 {
-                    PlQuery query = new PlQuery("stone(Row,Col,Color,Type)");
+                    PlQuery query = new PlQuery("stone(Field,Color,Type)");
                     IEnumerable<PlTermV> result = query.Solutions;
                     PlQuery.PlCall("retractall(stonesUpdated)");
                     StoneChangedEventArgs args = new StoneChangedEventArgs(result.Select<PlTermV, Stone>((v) => new Stone(v)));
@@ -76,9 +77,9 @@ namespace Dame
             }
         }
 
-        public void MoveStone(int sourceRow, int sourceCol, int destRow, int destCol)
+        public void MoveStone(Field source, Field destination)
         {
-            PlQuery.PlCall("moveStone", new PlTermV(new PlTerm[] { new PlTerm(sourceRow), new PlTerm(sourceCol), new PlTerm(destRow), new PlTerm(destCol) }));
+            PlQuery.PlCall("moveStone", new PlTermV(source.ToTerm(), destination.ToTerm()));
         }
 
         #region IDisposable Support

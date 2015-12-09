@@ -17,7 +17,7 @@ valueOfGame([Stone| State], World, EvaluationResult, ViewColor) :-
          EvaluationResult is Result - Value
    ).
 
-%call: +World, +Stone, --Result, +ViewColor
+%call: +World, +Stone, -Result, +ViewColor
 valueOfStone(World, Stone, Result, ViewColor) :-
    Stone = stone(_,_,Type),
    hasNeighbours(Stone, World, Neighbours),
@@ -78,7 +78,6 @@ canHit(World,Hitter,[[Victim2, Relation]|Neighbours]) :-
 
 %call: +World, +Hitter, +Victim, -Relation
 %Relation: <Victim> is <Relation> of <Hitter>
-%works if relation is unknown
 canHit(World, Hitter, stone(VField,VColor,_), Relation) :-
    Hitter = stone(HField,HColor,_),
    HColor \==VColor,
