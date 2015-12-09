@@ -1,11 +1,13 @@
-%author Karsten Möckel
+﻿%author Karsten Möckel
 %date 07.12.2015
 
 % Return opposite player of the color.
-getEnemy(Color, Return) :-
-    (Color = white, Return = black, !)
-    ;
-    (Color = black, Return = white, !).
+getEnemy(Color, Enemy) :-
+   Color == white ->
+      Enemy = black
+   ;
+   Color == black ->
+      Enemy = white.
 
 % Player: current player.
 % Depth: Depth of the search.
@@ -14,7 +16,7 @@ createTree(Player, Depth) :-
     getEnemy(Player, Enemy),
 
     % Find all Stones of the current player.
-    findall(stone(Row,Col,Player,Type), stone(Row,Col,Player,Type), CurrentPlayerStones),
+    findall(stone(Field,Player,Type), stone(Field,Player,Type), CurrentPlayerStones),
 
     % Find all Stones of the enemy player.
     findall(stone(Row,Col,Enemy,Type), stone(Row,Col,Enemy,Type), EnemyPlayerStones),
@@ -108,43 +110,16 @@ depthSearch(CurrentPlayerStones, EnemyPlayerStones, Player, Depth, ParentNode, S
 %% the list into NewList.
 %% Add new Stone to NewList.
 doMove(Stone, StoneList, Direction, NewList) :-
-    arg(1, Stone, Row1),
-    arg(2, Stone, Col1),
-    arg(3, Stone, Color),
-    arg(4, Stone, Type),
+   Stone = stone(Field,Color,Type),
     subtract(StoneList, [Stone], TempList),
-    (
-        Direction == topLeft,
-            (
-                moveTopLeft(Col1, Row1, Col2, Row2)
-            )
-        ;
-        Direction == topRight,
-            (
-                moveTopRight(Col1, Row1, Col2, Row2)
-            )
-        ;
-        Direction == bottomLeft,
-            (
-                moveBottomLeft(Col1, Row1, Col2, Row2)
-            )
-        ;
-        Direction == bottomRight,
-            (
-                moveBottomRight(Col1, Row1, Col2, Row2)
-            )
-    ),
-    con(TempList, [stone(Col2, Row2, Color, Type)], NewList).
+    hasRelation(Field,Field2,Direction),
+    con(TempList, [stone(Field2, Color, Type)], NewList).
 
 addChildNode(Node, NewChildnode) :-
-    arg(1, Node, Parent),
-    arg(2, Node, Value),
-    arg(3, Node, World),
-    arg(4, Node, Player),
-    arg(5, Node, Childnodes),
-    retract(Node),
-    con(Childnodes, [NewChildnode], NewList),
-    assertz(node(Parent, Value, World, Player, NewList)).
+   Node = node(Parent, Value,World,Player,ChildNodes),
+   retract(Node),
+   con(ChildNodes, [NewChildnode], NewList),
+   assertz(node(Parent, Value, World, Player, NewList)).
 
 %% Concatenate two lists.
 con([],L1,L1).

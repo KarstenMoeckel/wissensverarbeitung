@@ -1,5 +1,5 @@
 % Autor: Robert Maas
-% Datum: 08.12.2015
+% Datum: 09.12.2015
 
 :- dynamic history/1.
 :- dynamic historyUpdated/0. %flag for GUI for pending history changes
@@ -8,18 +8,16 @@
 :- dynamic turn/1. %turn(Color), color of player, who has to move
 :- dynamic player/1. % player(Color), color of human player
 
-:- dynamic player/2. % player(Position, Color).
+% stone(field(Row,Col),StoneColor,Type).
+:- dynamic stone/3.
+stone(field(2,3),black,normal).
+stone(field(3,4),black,normal).
+stone(field(4,5),white,normal).
+stone(field(8,1),black,queen).
+stone(field(2,7),white,queen).
 
 player(top, black).
 player(bottom, white).
-
-% stone(Row,Col,StoneColor,Type).
-:- dynamic stone/4.
-%stone(2,3,black,normal).
-%stone(3,4,black,normal).
-%stone(4,5,white,normal).
-stone(8,1,black,queen).
-stone(2,7,white,queen).
 
 %node(parent, value, world, player, childnodes[])
 % parent:       node one level above.
@@ -28,7 +26,7 @@ stone(2,7,white,queen).
 % childnodes:   list of nodes one Level below.
 :- dynamic node/5. %node(parent, value, world, player, childnodes[])
 
-field(Row,Col,Color) :-
+field(field(Row,Col),Color) :-
    numbers(Row),
    numbers(Col),
    Sum is Row + Col,

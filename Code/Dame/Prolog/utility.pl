@@ -1,29 +1,26 @@
-magnitudeOf2Numbers(X,Y,L):-
-   X >= Y ->
-      L is X - Y
+magnitudeOf2Numbers(N1,N2,L):-
+   N1 >= N2 ->
+      L is N1 - N2
    ;
-      L is Y-X.
+      L is N2-N1.
 
-manhattenDistance(X1, Y1, X2, Y2, Distance):-
-        magnitudeOf2Numbers(X1,X2,L1),
-        magnitudeOf2Numbers(Y1,Y2,L2),
+manhattenDistance(field(Row1,Col1), field(Row2,Col2), Distance):-
+        magnitudeOf2Numbers(Row1,Row2,L1),
+        magnitudeOf2Numbers(Col1,Col2,L2),
         Distance is  L1 + L2,
         !.
 
-
 %Robert Maas
 %08.12.2015
+%call: --List
 createStoneList(List) :-
-   findall(stone(Row,Col,Color,Type),stone(Row,Col,Color,Type),List).
+   findall(stone(Field,Color,Type),stone(Field,Color,Type),List).
 
-hasRelation(field(Row1,Col1),field(Row2,Col2),Relation) :- hasRelation(Row1,Col1,Row2,Col2,Relation).
+%call: +Field1, +Field2, -Relation
+%  OR: +Field1, --Field2, +Relation
 %checks Relation of Fields; manhatten-distance must be 2
-%Relation: <(Row2,Col2)> is <Relation> of <(Row1,Col1)>
-hasRelation(Row1,Col1,Row2,Col2,Relation) :-
-   number(Row1),
-   number(Row2),
-   number(Col1),
-   number(Col2),
+%Relation: <Field2> is <Relation> of <Field1>
+hasRelation(field(Row1,Col1),field(Row2,Col2),Relation) :-
    (
       (
          Row2 =:= Row1 + 1,
@@ -49,31 +46,33 @@ hasRelation(Row1,Col1,Row2,Col2,Relation) :-
       ) ->
          Relation = topLeft
    ).
-hasRelation(SRow,SCol,DRow,DCol,Relation) :-
-   var(DRow),
-   var(DCol),
-   number(SRow),
-   number(SCol),
+hasRelation(field(SRow,SCol),Destination,Relation) :-
+   var(Destination),
    atom(Relation),
    (
       Relation == bottomRight ->
          DRow is SRow + 1,
-         DCol is SCol + 1
+         DCol is SCol + 1,
+         Destination = field(DRow,DCol)
       ;
       Relation == bottomLeft ->
          DRow is SRow + 1,
-         DCol is SCol - 1
+         DCol is SCol - 1,
+         Destination = field(DRow,DCol)
       ;
       Relation == topRight ->
          DRow is SRow - 1,
-         DCol is SCol + 1
+         DCol is SCol + 1,
+         Destination = field(DRow,DCol)
       ;
       Relation == topLeft ->
          DRow is SRow - 1,
-         DCol is SCol - 1
+         DCol is SCol - 1,
+         Destination = field(DRow,DCol)
    ).
 
-moveDirections(stone(_,_,_,queen), Direction):-
+%call: +Stone, -Direction
+moveDirections(stone(_,_,queen), Direction):-
       Direction = bottomLeft
    ;
       Direction = bottomRight
@@ -82,7 +81,7 @@ moveDirections(stone(_,_,_,queen), Direction):-
    ;
       Direction = topRight.
 
-moveDirections(stone(_,_,Color,normal), Direction) :-
+moveDirections(stone(_,Color,normal), Direction) :-
    player(Position, Color),
    (
       Position == top ->
