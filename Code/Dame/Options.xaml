@@ -1,0 +1,36 @@
+﻿<Window x:Class="Dame.Options"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Dame"
+        mc:Ignorable="d"
+        Title="Optionen" Height="329.091" Width="320.909" ResizeMode="NoResize" x:Name="options">
+    <Window.Resources>
+        <local:RadioButtonCheckedConverter x:Key="RadioButtonCheckedConverter"/>
+    </Window.Resources>
+    <Grid>
+        <GroupBox Header="Schwierigkeitsgrad" HorizontalAlignment="Left" VerticalAlignment="Top" Height="111" Width="116" Margin="10,10,0,0">
+            <Grid>
+                <RadioButton Content="Leicht" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" GroupName="Difficulty" IsChecked="{Binding Difficulty, ConverterParameter=Easy, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+                <RadioButton Content="Mittel" HorizontalAlignment="Left" Margin="0,30,0,0" VerticalAlignment="Top" GroupName="Difficulty" IsChecked="{Binding Difficulty, ConverterParameter=Medium, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+                <RadioButton Content="Schwer" HorizontalAlignment="Left" Margin="0,50,0,0" VerticalAlignment="Top" GroupName="Difficulty" IsChecked="{Binding Difficulty, ConverterParameter=Hard, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+                <RadioButton Content="Extrem" HorizontalAlignment="Left" Margin="0,70,0,0" VerticalAlignment="Top" GroupName="Difficulty" IsChecked="{Binding Difficulty, ConverterParameter=Extreme, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+            </Grid>
+        </GroupBox>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="216,101,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
+        <GroupBox Header="Spielerfarbe" HorizontalAlignment="Left" Margin="131,10,0,0" VerticalAlignment="Top" Height="73">
+            <Grid>
+                <RadioButton Content="Schwarz" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" GroupName="Player" IsChecked="{Binding Player, ConverterParameter=black, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+                <RadioButton Content="Weiss" HorizontalAlignment="Left" Margin="0,30,0,0" VerticalAlignment="Top" GroupName="Player" IsChecked="{Binding Player, ConverterParameter=white, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Startfarbe" HorizontalAlignment="Left" Margin="217,10,0,0" VerticalAlignment="Top" Height="73">
+            <Grid>
+                <RadioButton Content="Schwarz" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" GroupName="StartColor" IsChecked="{Binding StartColor, ConverterParameter=black, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+                <RadioButton Content="Weiss" HorizontalAlignment="Left" Margin="0,30,0,0" VerticalAlignment="Top" GroupName="StartColor" IsChecked="{Binding StartColor, ConverterParameter=white, Converter={StaticResource RadioButtonCheckedConverter}, ElementName=options, Mode=TwoWay}"/>
+            </Grid>
+        </GroupBox>
+
+    </Grid>
+</Window>

@@ -8,29 +8,33 @@ using System.Threading;
 
 namespace Dame
 {
-    class Engine: IDisposable
+    partial class Engine: IDisposable
     {
         public event EventHandler<StoneChangedEventArgs> StonesChanged;
         public event EventHandler<HistoryEventArgs> HistoryChanged;
 
         private Thread historyThread;
         private Thread stoneThread;
+        private bool running;
+        public Option Options { get; private set; }
 
         public Engine()
         {
             historyThread = new Thread(new ThreadStart(CheckHistory_Thread));
             stoneThread = new Thread(new ThreadStart(CheckStones_Thread));
+            Options = new Engine.Option();
         }
 
         public void Init()
         {
+            running = true;
             historyThread.Start();
             stoneThread.Start();
         }
 
         public void Start()
         {
-            Options.SetOptions();
+            Options.Save();
         }
 
         public bool LoadFile(string file)
@@ -41,7 +45,7 @@ namespace Dame
         private void CheckHistory_Thread()
         {
             PlEngine.PlThreadAttachEngine();
-            while (Thread.CurrentThread.ThreadState == ThreadState.Running)
+            while (running)
             {
                 if (PlQuery.PlCall("historyUpdated"))
                 {
@@ -58,7 +62,7 @@ namespace Dame
         private void CheckStones_Thread()
         {
             PlEngine.PlThreadAttachEngine();
-            while (Thread.CurrentThread.ThreadState == ThreadState.Running)
+            while (running)
             {
                 if (PlQuery.PlCall("stonesUpdated"))
                 {
@@ -74,7 +78,7 @@ namespace Dame
 
         public void MoveStone(int sourceRow, int sourceCol, int destRow, int destCol)
         {
-            PlQuery.PlCall("move", new PlTermV(new PlTerm[] { new PlTerm(sourceRow), new PlTerm(sourceCol), new PlTerm(destRow), new PlTerm(destCol) }));
+            PlQuery.PlCall("moveStone", new PlTermV(new PlTerm[] { new PlTerm(sourceRow), new PlTerm(sourceCol), new PlTerm(destRow), new PlTerm(destCol) }));
         }
 
         #region IDisposable Support
@@ -86,10 +90,9 @@ namespace Dame
             {
                 if (disposing)
                 {
-                    if (!historyThread.Join(300))
-                        historyThread.Abort();
-                    if (!stoneThread.Join(300))
-                        stoneThread.Abort();
+                    running = false;
+                    historyThread.Join();
+                    stoneThread.Join();
                 }
 
                 // TODO: nicht verwaltete Ressourcen (nicht verwaltete Objekte) freigeben und Finalizer weiter unten überschreiben.

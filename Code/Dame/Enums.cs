@@ -2,13 +2,21 @@
 {
     enum StoneType
     {
-        normal,
-        queen
+        Normal,
+        Queen
     }
 
-    enum StoneColor
+    public enum StoneColor
     {
-        black,
-        white
+        Black,
+        White
+    }
+
+    public enum Difficulty
+    {
+        Easy = 3,
+        Medium = 5,
+        Hard = 10,
+        Extreme = 15
     }
 }

@@ -1,91 +1,87 @@
 % Autor: Robert Maas
-% Datum: 03.12.2015
+% Datum: 07.12.2015
 
-%VVVVVVVVVVVVVVVEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRYYYYYYYYYYYYYYYY
-%simple evaluation algorithm based uppon stone count
-evaluateGame([],_, 0,_).
-evaluateGame([Stone| State], World, EvaluationResult, ViewColor) :-
-   evaluateGame(State, World, Result, ViewColor),
-   evaluateStone(World, Stone, Value, ViewColor),
-   EvaluationResult is Value + Result.
-
-evaluateStone(World, Stone, Result, ViewColor) :-
-   Stone = stone(_,_,Color,_),
-   evaluateStone(World, Stone, Result1),
+%simple evaluation algorithm
+%call: World,World,Result,ViewColor
+%World: list of all stones
+%World: first is for working, second for other predicates
+%ViewColor: color from which view the game is evaluated
+valueOfGame([],_, 0,_).
+valueOfGame([Stone| State], World, EvaluationResult, ViewColor) :-
+   valueOfGame(State, World, Result, ViewColor),
+   valueOfStone(World, Stone, Value, ViewColor),
    (
-      Color == ViewColor ->
-         Result is Result1
+      Stone = stone(_,_,ViewColor,_)->
+         EvaluationResult is Value + Result
       ;
-         Result is Result1 * -1
+         EvaluationResult is Result - Value
    ).
 
-evaluateStone(World, Stone,Result) :-
+valueOfStone(World, Stone, Result, ViewColor) :-
    Stone = stone(_,_,_,Type),
-   neighbours(Stone,World, Neighbours),
+   hasNeighbours(Stone,World, Neighbours),
    (
-      checkHitPossibility(World,Stone,Neighbours, Victim) ->
-      (
-         Victim = stone(_,_,_,VType),
-         VType == normal ->
-            evalValue(Type,canHitNormal,Result)
-         ;
-            evalValue(Type,canHitQueen,Result)
-      )
+      hasHitState(World, ViewColor, Stone,Neighbours, EvalPos) ->
+         evalValue(Type, EvalPos,Result)
       ;
          evalValue(Type,normal,Result)
    ).
 
+hasHitState(World, ViewColor, Stone, Neighbours, EvalPos) :-
+   (
+      Stone = stone(_,_,ViewColor,_),
+      canBeHitten(World,Stone,Neighbours) %if stonecolor is in turn, the stone cannot hit enemy, but enemy can perhaps (and will, if possible) hit stone
+   ) ->
+      EvalPos = willBeHitten,!
+   ;
+      canHit(World,Stone,Neighbours) -> %stone cannot be hitten by enemy, but the stone can perhaps hit an enemy
+         EvalPos = canHit.
+
+%call: World, Victim, Neighbours
+%true, if Victim can be hitten by a neighbour
+canBeHitten(_,_,[]) :- fail.
+canBeHitten(World,Victim,[[Hitter,_]|Neighbours]) :-
+   canHit(World,Hitter,Victim, _) ->
+      true
+   ;
+      canBeHitten(World,Hitter,Neighbours).
+
+%call: Stone, World, Neighbours
+%Neighbours: list of all Neighbours and their relation to the stone
+%Neighbours list entry format: [stone, relation]
 %searches for neighbours of given stone
-neighbours(_,[],[]).
-neighbours(stone(Row,Col,_,_), [CheckStone |GameState], Neighbours) :-
-   neighbours(stone(Row,Col,_,_),GameState,Neighbours2),
+%stone an world have to be known
+%if Neighbours is known, their must be in same order as in World
+hasNeighbours(_,[],[]).
+hasNeighbours(stone(Row,Col,_,_), [CheckStone |GameState], Neighbours) :-
+   hasNeighbours(stone(Row,Col,_,_),GameState,FoundNeighbours),
    (
       (
          CheckStone = stone(Row2,Col2,_,_),
-         checkRelation(Row,Col,Row2,Col2,Relation)
+         hasRelation(Row,Col,Row2,Col2,Relation)
       ) ->
-         Neighbours = [[CheckStone, Relation] | Neighbours2]
+         Neighbours = [[CheckStone, Relation] | FoundNeighbours]
       ;
-         Neighbours = Neighbours2
+         Neighbours = FoundNeighbours
    ).
 
-checkHitPossibility(_,_,[]) :- fail.
-checkHitPossibility(World,Hitter,[[Victim2,Relation]|Neighbours], Victim) :-
-   canHit(World,Hitter,Relation,Victim2) ->
-      Victim = Victim2
+%call: World, Hitter, Neighbours
+%true, if Hitter can hit a neighbour
+canHit(_,_,[]) :- fail.
+canHit(World,Hitter,[[Victim2, Relation]|Neighbours]) :-
+   canHit(World,Hitter,Victim2, Relation) ->
+      true
    ;
-      checkHitPossibility(World,Hitter,Neighbours, Victim).
+      canHit(World,Hitter,Neighbours).
 
-canHit(World, Hitter, Relation, stone(VRow,VCol,VColor,_)) :-
-   Hitter = stone(_,_,HColor,_),
-   HColor \== VColor,
+%call: World, Hitter, Victim, Relation
+%Relation: <Victim> is <Relation> of <Hitter>
+%works if relation is unknown
+canHit(World, Hitter, stone(VRow,VCol,VColor,_), Relation) :-
+   Hitter = stone(HRow,HCol,HColor,_),
+   HColor \==VColor,
    moveDirections(Hitter, Relation),
-   calculateTarget(VRow,VCol,Relation,TRow,TCol),
+   hasRelation(HRow,HCol,VRow,VCol,Relation), %check if victim stone at given position; only necessary in case of backtracking
+   !,
+   hasRelation(VRow,VCol,TRow,TCol,Relation),
    fieldFree(World,TRow,TCol).
-
-moveDirections(stone(_,_,_,queen), Direction):-
-      Direction = bottomLeft
-   ;
-      Direction = bottomRight
-   ;
-      Direction = topLeft
-   ;
-      Direction = topRight.
-
-moveDirections(stone(_,_,Color,normal), Direction) :-
-   player(Position, Color),
-   (
-      Position == top ->
-      (
-         Direction = bottomLeft
-         ;
-         Direction = bottomRight
-      )
-      ;
-      Position == bottom ->
-      (
-         Direction = topLeft
-         ;
-         Direction = topRight
-      )
-   ).
