@@ -6,4 +6,5 @@ init :-
    consult('IO'),
    consult('rules'),
    consult('utility'),
-   consult('evaluation').
+   consult('evaluation'),
+   consult('tree').
