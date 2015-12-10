@@ -42,10 +42,15 @@ field(field(Row,Col),Color) :-
 numbers(X) :- between(1,8,X).
 
 %evalValue(StoneType, Position, Value)
-evalValue(normal, normal, 1000). %nothing special at stone position
-evalValue(normal, becomeQueen, 1500). %stone can become a queen in next turn
-evalValue(normal, canHit, 1600). %stone can hit a normal stone
+evalValue(normal, row1, 1000). %value of normal stone in relation to row 8; no entry for row 8 because stone is then a queen
+evalValue(normal, row2, 1025).
+evalValue(normal, row3, 1050).
+evalValue(normal, row4, 1100).
+evalValue(normal, row5, 1150).
+evalValue(normal, row6, 1300).
+evalValue(normal, row7, 1500).
 evalValue(normal, willBeHitten, 100).
 evalValue(queen, normal, 2000). %nothing special at queen position
-evalValue(queen, canHit, 2600). %queen can hit a normal Stone in next turn
 evalValue(queen, willBeHitten, 200).
+evalBonus(unhittable, 200).
+evalBonus(canHit, 600).

@@ -9,7 +9,7 @@
 valueOfGame([],_, 0,_).
 valueOfGame([Stone| State], World, EvaluationResult, ViewColor) :-
    valueOfGame(State, World, Result, ViewColor),
-   valueOfStone(World, Stone, Value, ViewColor),
+   valueOfStone(World, Stone, ViewColor, Value),
    (
       Stone = stone(_,ViewColor,_)->
          EvaluationResult is Value + Result
@@ -17,27 +17,52 @@ valueOfGame([Stone| State], World, EvaluationResult, ViewColor) :-
          EvaluationResult is Result - Value
    ).
 
-%call: +World, +Stone, -Result, +ViewColor
-valueOfStone(World, Stone, Result, ViewColor) :-
-   Stone = stone(_,_,Type),
+%call: +World, +Stone, +ViewColor, -Value
+valueOfStone(World, Stone, ViewColor, Value) :-
+   Stone = stone(field(_,Col),_,Type),
    hasNeighbours(Stone, World, Neighbours),
    (
-      hasHitState(World, ViewColor, Stone, Neighbours, EvalPos) ->
-         evalValue(Type, EvalPos, Result)
+      (
+         Stone = stone(_,ViewColor,_),
+         canBeHitten(World,Stone,Neighbours)
+      )->
+         evalValue(Type,willBeHitten, Value)
       ;
-         evalValue(Type, normal, Result)
+      (
+         valueOfStone(Stone,BaseValue),
+         unhittableBonus(Col,Bonus1),
+         hitBonus(World,Stone,Neighbours, Bonus2),
+         Value = BaseValue + Bonus1 + Bonus2
+      )
    ).
 
-%call: +World, +ViewColor, +Stone, +Neighbours, -EvalPos
-hasHitState(World, ViewColor, Stone, Neighbours, EvalPos) :-
-   (
-      Stone = stone(_,ViewColor,_),
-      canBeHitten(World, Stone, Neighbours) %if stonecolor is in turn, the stone cannot hit enemy, but enemy can perhaps (and will, if possible) hit stone
-   ) ->
-      EvalPos = willBeHitten
+valueOfStone(stone(_,_,queen), Value) :- evalValue(queen, normal,Value).
+valueOfStone(Stone, Value) :-
+   Stone = stone(field(Row,_),Color,normal),
+   isNormalized(Row,Color,Normalized),
+   atom_concat(row,Normalized,EvalPos),
+   evalValue(normal,EvalPos,Value).
+
+unhittableBonus(Col, Bonus) :-
+   (Col == 1 ; Col == 8)-> evalBonus(unhittable,Bonus)
    ;
-      canHit(World,Stone,Neighbours) -> %stone cannot be hitten by enemy, but the stone can perhaps hit an enemy
-         EvalPos = canHit.
+   Bonus = 0.
+
+isNormalized(Row, Color, NormalizedRow) :-
+   player(StartPos,Color),
+   (
+      StartPos == top ->
+         NormalizedRow = Row
+      ;
+      StartPos == bottom ->
+         NormalizedRow is 9 - Row
+   ).
+
+hitBonus(World,Hitter,Neighbours,Bonus) :-
+   canHit(World,Hitter,Neighbours) ->
+      evalBonus(canHit,Bonus)
+   ;
+      Bonus = 0.
 
 %call: +World, +Victim, +Neighbours
 %true, if Victim can be hitten by a neighbour
