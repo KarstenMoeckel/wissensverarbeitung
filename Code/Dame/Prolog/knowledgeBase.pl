@@ -14,6 +14,7 @@
 stone(field(2,3),black,normal).
 stone(field(3,4),black,normal).
 stone(field(4,5),white,normal).
+stone(field(6,7),white,normal).
 stone(field(8,1),black,queen).
 stone(field(2,7),white,queen).
 

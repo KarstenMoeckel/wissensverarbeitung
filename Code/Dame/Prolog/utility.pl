@@ -74,29 +74,31 @@ hasRelation(field(SRow,SCol),Destination,Relation) :-
    ).
 
 %call: +Stone, -Direction
-moveDirections(stone(_,_,queen), Direction):-
-      Direction = bottomLeft
+moveDirections(stone(field(Row,Col),_,queen), Direction):-
+      Row \==8,
+      bottomDirections(Col, Direction)
    ;
-      Direction = bottomRight
-   ;
-      Direction = topLeft
-   ;
-      Direction = topRight.
+      Row \== 1,
+      topDirections(Col, Direction).
 
-moveDirections(stone(_,Color,normal), Direction) :-
+moveDirections(stone(field(_,Col),Color,normal), Direction) :-
    player(Position, Color),
    (
-      Position == top ->
-      (
-         Direction = bottomLeft
-         ;
-         Direction = bottomRight
-      )
+         Position == top -> bottomDirections(Col, Direction)
       ;
-      Position == bottom ->
-      (
-         Direction = topLeft
-         ;
-         Direction = topRight
-      )
+         Position == bottom -> topDirections(Col, Direction)
    ).
+   
+topDirections(Col, Direction) :-
+      Col \== 1,
+      Direction = topLeft
+   ;
+      Col \==8,
+      Direction = topRight.
+      
+bottomDirections(Col, Direction) :-
+      Col \== 1,
+      Direction = bottomLeft
+   ;
+      Col \==8,
+      Direction = bottomRight.
