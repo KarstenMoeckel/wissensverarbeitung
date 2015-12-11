@@ -1,88 +1,104 @@
-magnitudeOf2Numbers(X,Y,L):-
-   X >= Y ->
-      L is X - Y
+magnitudeOf2Numbers(N1,N2,L):-
+   N1 >= N2 ->
+      L is N1 - N2
    ;
-      L is Y-X.
+      L is N2-N1.
 
-manhattenDistance(X1, Y1, X2, Y2, Distance):-
-        magnitudeOf2Numbers(X1,X2,L1),
-        magnitudeOf2Numbers(Y1,Y2,L2),
+manhattenDistance(field(Row1,Col1), field(Row2,Col2), Distance):-
+        magnitudeOf2Numbers(Row1,Row2,L1),
+        magnitudeOf2Numbers(Col1,Col2,L2),
         Distance is  L1 + L2,
         !.
 
-
 %Robert Maas
-%03.12.2015
+%08.12.2015
+%call: --List
 createStoneList(List) :-
-   findall(stone(Row,Col,Color,Type),stone(Row,Col,Color,Type),List).
+   findall(stone(Field,Color,Type),stone(Field,Color,Type),List).
 
+%call: +Field1, +Field2, -Relation
+%  OR: +Field1, --Field2, +Relation
 %checks Relation of Fields; manhatten-distance must be 2
-%e.g. checkRelation(1,1,2,2,buttonRight)
-checkRelation(Row1,Col1,Row2,Col2,Relation) :-
+%Relation: <Field2> is <Relation> of <Field1>
+hasRelation(field(Row1,Col1),Field2,Relation) :-
+   nonvar(Field2),
+   Field2 = field(Row2,Col2),
+   (
       (
-         Row2 is Row1 + 1,
-         Col2 is Col1 + 1
+         Row2 =:= Row1 + 1,
+         Col2 =:= Col1 + 1
       ) ->
          Relation = bottomRight
-   ;
+      ;
       (
-         Row2 is Row1 + 1,
-         Col2 is Col1 - 1
+         Row2 =:= Row1 + 1,
+         Col2 =:= Col1 - 1
       ) ->
          Relation = bottomLeft
-   ;
+      ;
       (
-         Row2 is Row1 - 1,
-         Col2 is Col1 + 1
+         Row2 =:= Row1 - 1,
+         Col2 =:= Col1 + 1
       ) ->
          Relation = topRight
-   ;
+      ;
       (
-         Row2 is Row1 - 1,
-         Col2 is Col1 - 1
+         Row2 =:= Row1 - 1,
+         Col2 =:= Col1 - 1
       ) ->
-         Relation = topLeft.
-      
-calculateTarget(SRow,SCol,Relation,DRow,DCol) :-
-   Relation == bottomRight ->
-      DRow is SRow + 1,
-      DCol is SCol + 1
-   ;
-   Relation == bottomLeft ->
-      DRow is SRow + 1,
-      DCol is SCol - 1
-   ;
-   Relation == topRight ->
-      DRow is SRow - 1,
-      DCol is SCol + 1
-   ;
-   Relation == topLeft ->
-      DRow is SRow - 1,
-      DCol is SCol - 1.
+         Relation = topLeft
+   ).
+hasRelation(field(SRow,SCol),Destination,Relation) :-
+   var(Destination),
+   atom(Relation),
+   (
+      Relation == bottomRight ->
+         DRow is SRow + 1,
+         DCol is SCol + 1,
+         Destination = field(DRow,DCol)
+      ;
+      Relation == bottomLeft ->
+         DRow is SRow + 1,
+         DCol is SCol - 1,
+         Destination = field(DRow,DCol)
+      ;
+      Relation == topRight ->
+         DRow is SRow - 1,
+         DCol is SCol + 1,
+         Destination = field(DRow,DCol)
+      ;
+      Relation == topLeft ->
+         DRow is SRow - 1,
+         DCol is SCol - 1,
+         Destination = field(DRow,DCol)
+   ).
 
-moveDirections(stone(_,_,_,queen), Direction):-
-      Direction = bottomLeft
+%call: +Stone, -Direction
+moveDirections(stone(field(Row,Col),_,queen), Direction):-
+      Row \==8,
+      bottomDirections(Col, Direction)
    ;
-      Direction = bottomRight
-   ;
-      Direction = topLeft
-   ;
-      Direction = topRight.
+      Row \== 1,
+      topDirections(Col, Direction).
 
-moveDirections(stone(_,_,Color,normal), Direction) :-
+moveDirections(stone(field(_,Col),Color,normal), Direction) :-
    player(Position, Color),
    (
-      Position == top ->
-      (
-         Direction = bottomLeft
-         ;
-         Direction = bottomRight
-      )
+         Position == top -> bottomDirections(Col, Direction)
       ;
-      Position == bottom ->
-      (
-         Direction = topLeft
-         ;
-         Direction = topRight
-      )
+         Position == bottom -> topDirections(Col, Direction)
    ).
+   
+topDirections(Col, Direction) :-
+      Col \== 1,
+      Direction = topLeft
+   ;
+      Col \==8,
+      Direction = topRight.
+      
+bottomDirections(Col, Direction) :-
+      Col \== 1,
+      Direction = bottomLeft
+   ;
+      Col \==8,
+      Direction = bottomRight.

@@ -19,7 +19,7 @@ valueOfGame([Stone| State], World, EvaluationResult, ViewColor) :-
 
 %call: +World, +Stone, +ViewColor, -Value
 valueOfStone(World, Stone, ViewColor, Value) :-
-   Stone = stone(field(_,Col),_,Type),
+   Stone = stone(Field,_,Type),
    hasNeighbours(Stone, World, Neighbours),
    (
       (
@@ -30,9 +30,9 @@ valueOfStone(World, Stone, ViewColor, Value) :-
       ;
       (
          valueOfStone(Stone,BaseValue),
-         unhittableBonus(Col,Bonus1),
-         hitBonus(World,Stone,Neighbours, Bonus2),
-         Value = BaseValue + Bonus1 + Bonus2
+         unhittableBonus(Field,Bonus1),
+         hitBonus(World,Stone, Bonus2),
+         Value is BaseValue + Bonus1 + Bonus2
       )
    ).
 
@@ -43,8 +43,12 @@ valueOfStone(Stone, Value) :-
    atom_concat(row,Normalized,EvalPos),
    evalValue(normal,EvalPos,Value).
 
-unhittableBonus(Col, Bonus) :-
-   (Col == 1 ; Col == 8)-> evalBonus(unhittable,Bonus)
+unhittableBonus(field(Row,Col), Bonus) :-
+   (
+      Col == 1; Col == 8;
+      Row == 1; Row == 8
+   )->
+      evalBonus(unhittable,Bonus)
    ;
    Bonus = 0.
 
@@ -58,11 +62,10 @@ isNormalized(Row, Color, NormalizedRow) :-
          NormalizedRow is 9 - Row
    ).
 
-hitBonus(World,Hitter,Neighbours,Bonus) :-
-   canHit(World,Hitter,Neighbours) ->
-      evalBonus(canHit,Bonus)
-   ;
-      Bonus = 0.
+hitBonus(World,Hitter,Bonus) :-
+   canMultiHit(World,Hitter,_,Counter),
+   evalBonus(canHit,BonusBase),
+   Bonus is BonusBase * Counter.
 
 %call: +World, +Victim, +Neighbours
 %true, if Victim can be hitten by a neighbour
@@ -92,14 +95,33 @@ hasNeighbours(stone(Field,_,_), [CheckStone |GameState], Neighbours) :-
          Neighbours = FoundNeighbours
    ).
 
+%call: +world, +Hitter, -PreviousViction, --Counter
+%returns true, if no hit can be done
+canMultiHit(World,Hitter, PreviousVictim, Counter) :-
+   hasNeighbours(Hitter,World,Neighbours1),
+   (
+      var(PreviousVictim) ->
+         Neighbours = Neighbours1
+      ;
+         subtract(Neighbours1, [PreviousVictim,_], Neighbours)
+   ),
+   canHit(World,Hitter, Neighbours,[Victim,Relation])->
+      Victim = stone(Field,_,_),
+      hasRelation(Field,Destination,Relation),
+      Hitter = stone(_,Color,Type),
+      canMultiHit(World,stone(Destination,Color,Type),Victim,Counter1),
+      Counter is Counter1 + 1
+   ;
+      Counter = 0.
+
 %call: +World, +Hitter, -Neighbours
 %true, if Hitter can hit a neighbour
 canHit(_,_,[]) :- fail.
-canHit(World,Hitter,[[Victim2, Relation]|Neighbours]) :-
-   canHit(World,Hitter,Victim2, Relation) ->
-      true
+canHit(World,Hitter,[[Victim, Relation]|Neighbours], VictimInfo) :-
+   canHit(World,Hitter,Victim, Relation) ->
+      VictimInfo = [Victim, Relation]
    ;
-      canHit(World,Hitter,Neighbours).
+      canHit(World,Hitter,Neighbours, VictimInfo).
 
 %call: +World, +Hitter, +Victim, -Relation
 %Relation: <Victim> is <Relation> of <Hitter>
