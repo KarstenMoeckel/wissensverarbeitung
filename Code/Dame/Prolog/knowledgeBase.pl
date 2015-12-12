@@ -26,7 +26,7 @@ player(bottom, white).
 % value:        value of the node from the evaluation function.
 % world:        stones of the players.
 % childnodes:   list of nodes one Level below.
-:- dynamic node/5. %node(parent, value, world, player, childnodes[])
+:- dynamic node/4. %node(parent, value, world, player)
 
 field(field(Row,Col),Color) :-
    numbers(Row),
