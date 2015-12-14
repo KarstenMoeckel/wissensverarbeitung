@@ -18,6 +18,36 @@ setDifficultyLevel(Level):-
 	Level = 'mittel' ->	setSearchDepth(3);
 	Level = 'schwer' -> setSearchDepth(5);
 	Level = 'extrem' -> setSearchDepth(7).
+
+resetGame:-
+    retractall(stone(_,_,_)),
+    retractall(game(_)),
+    retractall(turn(_)).
+
+
+
+startGame :-
+   option(startingColor, Color),
+   (
+   Color = white ->
+      (
+         assert(turn(white)),
+         assert(game(on))
+      )
+   ;
+   Color = black ->
+      (
+         assert(turn(black)),
+         assert(game(on))
+      )
+   ),!.
+
+
+endGame:-
+     retract(game(on)),
+     assert(game(over)).
+
+
 	
 	
 
