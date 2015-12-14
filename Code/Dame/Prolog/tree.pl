@@ -14,46 +14,62 @@ getEnemy(Color, Enemy) :-
 createTree(Player, Depth) :-
     createStoneList(World),
     assertz(node(_, 0, World, Player)),
-    depthSearch_1(Depth, node(_, 0, World, Player)).
+    depthSearch_1(Depth, node(_, 0, World, Player), Player).
 
 % Check if depth is reached.
 %
 % For each stone of the current Player
 %     call depthSearch_1
-depthSearch_1(Depth, ParentNode) :-
-    arg(3, ParentNode, World),
-    arg(4, ParentNode, Player),
-    Depth > 0,
-    NewDepth is Depth - 1,
-    getEnemy(Player, Enemy),
-    subtract(World, [stone(_,Enemy,_)], PlayerStones),
-    maplist(depthSearch_2(World, Player, NewDepth, ParentNode), PlayerStones).
+depthSearch_1(Depth, ParentNode, Player) :-
+    (
+        arg(3, ParentNode, World),
+        Depth > 0,
+        NewDepth is Depth - 1,
+        getEnemy(Player, Enemy),
+        subtract(World, [stone(_, Enemy, _)], PlayerStones),
+        writeln(Player),
+        maplist(depthSearch_2(World, Player, NewDepth, ParentNode),
+            PlayerStones)
+    )
+    ;
+    (
+        true
+    ).
 
 % For each Possible Move
-%     do the move and call depthSearch with the new list of stones.
+%     call depthSearch_3.
 %
 % For each Possible Attack
-%     do the attack and call depthSearch with the new list of stones.
+%     call depthSearch_4.
 depthSearch_2(World, Player, Depth, ParentNode, Stone) :-
-    writeln(Stone),
+    writeln("2 Stone:\t" + Stone),
     member(Stone, World),
     (
         %% Get all possible Moves
         findall(X, moveDirections(Stone, X), Relations),
-        maplist(depthSearch_3(World, Player, ParentNode, Stone), Relations),
+        maplist(depthSearch_3(World, Player, ParentNode, Stone, Depth),
+            Relations),
 
         %% Get all possible HitChances
-
-        %% Get all leafes of the tree and start a new search
-        findall(node(_, _, NodeWorld, NodePlayer),
-                node(ParentNode, Value, NodeWorld, NodePlayer), Nodes),
-        maplist(depthSearch_1(Depth), Nodes)
+        hasNeighbours(Stone, World, ListNeighbours),
+        writeln("3 Neighbours:\t" + ListNeighbours)
+        %%maplist(depthSearch_4(World, Player, ParentNode, Stone, Depth),
+        %%    ListNeighbours)
     ).
 
-depthSearch_3(World, Player, ParentNode, Stone, Relation) :-
+depthSearch_3(World, Player, ParentNode, Stone, Depth, Relation) :-
     validMove(Stone, Relation, Player, World),
     doMove(Stone, World, Relation, NewList),
-    assertz(node(ParentNode, 0, NewList, Player)).
+    %%valueOfGame(World, World, Value, Player),
+    %%writeln("value of game: " + Value),
+    assertz(node(ParentNode, 0, NewList, Player)),
+    writeln("3 Node:\t\t" + node(ParentNode, 0, NewList, Player)),
+    getEnemy(Player, Enemy),
+    depthSearch_1(Depth, node(_, _, NewList, Player), Enemy).
+
+depthSearch_4(World, Player, ParentNode, Stone, Depth, [Neighbour|Relation]) :-
+    writeln("4 Neighbour:\t" + Neighbour + "\t" + Relation),
+    canHit(World, Stone, Neighbour, Relation).
 
 %% subtract removes occurence of stone from StoneList and writes the rest of
 %% the list into NewList.
