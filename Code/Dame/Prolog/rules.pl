@@ -63,18 +63,26 @@ moveStone(Source, Destination):-
       isMove(Source,Destination) ->
          (
             setStoneToNewPosition(Source,Destination),
-            turnIntoKingIfPossible(Destination)
+            (
+              (not(isKing(Destination)),stoneReachedLastRow(Destination))-> turnIntoKing(Destination)
+              ;
+              true
+            )
          )
       ;
       isJump(Source,Destination) ->
          (
-            detroyJumpedStone,
-            setStoneToNewPosition(Source,Destination),
-            turnIntoKingIfPossible(Destination)
+              detroyJumpedStone,
+              setStoneToNewPosition(Source,Destination),
+             (
+                (not(isKing(Destination)),stoneReachedLastRow(Destination))-> turnIntoKing(Destination)
+                ;
+                true
+             )
          )
     ),
     changeTurn,
-    gameOver,
+    isGameOver,
     (not(stonesUpdated) -> assert(stonesUpdated); true),
     !.
 
@@ -187,16 +195,7 @@ rightTurn(Color):-
    ;
    true.
 
-turnIntoKingIfPossible(Field):-
-    (
-        notAKing(Field),
-        stoneReachedLastRow(Field)
-    ) ->
-       turnIntoKing(Field)
-    ;
-    true.
-
-notAKing(Field):-
+isKing(Field):-
     stone(Field,_,queen).
 
 stoneReachedLastRow(field(_,Col)):-
@@ -220,11 +219,8 @@ doesColorLose(Color):-
 registerWinner(Color):-
      assert(winner(Color)).
 
-endGame:-
-     retract(game(on)),
-     assert(game(over)).
 
-gameOver:-
+isGameOver:-
    doesColorLose(white) ->
       (
          registerWinner(black),
@@ -239,23 +235,3 @@ gameOver:-
    ;
    true.
 
-stopGame:-
-    retractall(stone(_,_,_)),
-    retractall(game(_)),
-    retractall(turn(_)).
-
-startGame :-
-   option(startColor, StartingPlayer),
-   (
-   StartingPlayer == white ->
-      (
-         assert(turn(white)),
-         assert(game(on))
-      )
-   ;
-   StartingPlayer = black ->
-      (
-         assert(turn(black)),
-         assert(game(on))
-      )
-   ).

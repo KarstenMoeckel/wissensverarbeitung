@@ -7,4 +7,5 @@ init :-
    consult('rules'),
    consult('utility'),
    consult('evaluation'),
-   consult('tree').
+   consult('tree'),
+   consult('options').
