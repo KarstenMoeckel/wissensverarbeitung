@@ -245,15 +245,15 @@ stopGame:-
     retractall(turn(_)).
 
 startGame :-
-   option(startColor, StartingPlayer),
+   option(startingColor, Color),
    (
-   StartingPlayer == white ->
+   Color = white ->
       (
          assert(turn(white)),
          assert(game(on))
       )
    ;
-   StartingPlayer = black ->
+   Color = black ->
       (
          assert(turn(black)),
          assert(game(on))
