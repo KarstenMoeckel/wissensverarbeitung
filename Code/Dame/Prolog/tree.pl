@@ -59,11 +59,8 @@ depthSearch_3(World, Player, ParentNode, Stone, Depth, Relation) :-
     arg(1, Stone, Field),
     validMove(stone(Field,_,_), Relation, Player, World),
     doMove(Stone, World, Relation, NewList),
-    writeln("search 3"),
     valueOfGame(NewList, Player, Value),
-    writeln("value of game: " + Value),
-    assertz(node(ParentNode, 0, NewList, Player)),
-    writeln("3 Node:\t\t" + node(ParentNode, 0, NewList, Player)),
+    assertz(node(ParentNode, Value, NewList, Player)),
     getEnemy(Player, Enemy),
     depthSearch_1(Depth, node(_, _, NewList, Player), Enemy).
 
