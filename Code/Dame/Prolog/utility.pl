@@ -88,17 +88,27 @@ moveDirections(stone(field(_,Col),Color,normal), Direction) :-
       ;
          Position == bottom -> topDirections(Col, Direction)
    ).
-   
+
 topDirections(Col, Direction) :-
       Col \== 1,
       Direction = topLeft
    ;
       Col \==8,
       Direction = topRight.
-      
+
 bottomDirections(Col, Direction) :-
       Col \== 1,
       Direction = bottomLeft
    ;
       Col \==8,
       Direction = bottomRight.
+
+%call: +World, +stone(_, Color, _), -List
+%finds all stones in a list matching the given pattern.
+subtract2([], _, []).
+subtract2([Head|Tail], stone(_, Color, _), L3) :-
+          memberchk(Head, [stone(_, Color, _)]),
+          !,
+          subtract2(Tail, stone(_, Color, _), L3).
+subtract2([Head|Tail1], stone(_, Color, _), [Head|Tail3]) :-
+          subtract2(Tail1, stone(_, Color, _), Tail3).
