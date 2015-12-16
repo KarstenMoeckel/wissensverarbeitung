@@ -86,6 +86,26 @@ moveStone(Source, Destination):-
     (not(stonesUpdated) -> assert(stonesUpdated); true),
     !.
 
+
+isHitPossible(Field,HittableNeighbours):-
+    createStoneList(World),
+    hasNeighbours(stone(Field,_,_),World,Neighbours),
+    (
+        (
+            member(Element,Neighbours),
+            (
+              (
+                canHit(World,stone(Field,_,_),[Element],Vict) -> assert(hittableNeighbours(Element)),
+                fail
+              )
+            )
+        )
+        ;
+        true
+    ),
+    hittableNeighbours(X).
+
+
 setStoneToNewPosition(Source,Destination):-
     stone(Source ,Color, StoneMode),
     retract(stone(Source, _, _)),
