@@ -6,9 +6,14 @@
      stonesUpdated/0,
      logMessage/1,
      getLogs/1,
-     loadFile/1]).
+     loadFile/1,
+     player/2]).
      
 :- use_module(board).
+:- use_module(rulez).
+
+player(top, black).
+player(bottom,white).
 
 :- dynamic stonesUpdated/0.
 
