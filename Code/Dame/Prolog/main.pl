@@ -1,11 +1,14 @@
-% Autor:
-% Datum: 26.11.2015
+% Autor: Robert Maas
+% Datum: 16.12.2015
 
-init :-
-   consult('knowledgeBase'),
-   consult('IO'),
-   consult('rules'),
-   consult('utility'),
-   consult('evaluation'),
-   consult('tree'),
-   consult('options').
+:- use_module(game).
+
+getLog(Logs) :- game:getLogs(Logs).
+
+loadStartPos(File) :-
+   open(File, read, Stream),
+   game:loadFile(Stream),
+   close(Stream),
+   atom_concat('Die Datei ', File, Message_tmp),
+   atom_concat(Message_tmp, ' wurde erfolgreich geladen.', Message),
+   game:logMessage(Message).
