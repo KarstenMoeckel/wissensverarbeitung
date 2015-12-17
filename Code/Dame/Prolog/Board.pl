@@ -1,5 +1,5 @@
 % Autor:
-% Datum: 16.12.2015
+% Datum: 17.12.2015
 
 :- module(board, [
     field/2, %call: +Field, -Color
@@ -94,4 +94,4 @@ isFieldBetween(Field1,Field2,FieldBetween) :-
    hasRelation(FieldBetween,Field2,Relation).
    
 isBorderCol(field(_,Col)) :- Col == 1; Col == 8.
-isBorderCol(field(Row,_)) :- Row == 1; Row == 8.
+isBorderRow(field(Row,_)) :- Row == 1; Row == 8.
