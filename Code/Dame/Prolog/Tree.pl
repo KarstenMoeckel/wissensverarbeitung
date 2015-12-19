@@ -1,20 +1,19 @@
 % Autor: Robert Maas
-% Datum: 17.12.2015
+% Datum: 1p.12.2015
 
 :- module(tree,[
-     appendTree/4 %call: ParentData, NodeData, Tree, NewTree
+     appendTree/4, %call: ParentData, NodeData, Tree, NewTree
+     isLeaf/1
      ]).
 
+isLeaf(Tree) :-
+   nonvar(Tree),
+   Tree = t(_,[]).
+   
 appendTree(Parent,Data,Tree,NewTree):-
    var(Parent),
    var(Tree),
    NewTree = t(Data,[]).
-%appendTree(Parent,_,Tree,NewTree) :-
-%   nonvar(Parent),
-%   nonvar(Tree),
-%   Tree = t(CurNodeData,[]),
-%   CurNodeData \== Parent,
-%   NewTree = t(CurNodeData,[]).
 appendTree(Parent,Data,Tree,NewTree) :-
    nonvar(Parent),
    nonvar(Tree),
@@ -34,5 +33,3 @@ checkSubTrees(Parent,Data,[Tree|SubTrees],NewSubTrees) :-
    ;
       checkSubTrees(Parent,Data, SubTrees,NewTree),
       NewSubTrees = [Tree|NewTree].
-
-%Append: Tree, Parent, Data, NewTree
