@@ -1,5 +1,5 @@
 % Autor: Robert Maas
-% Datum: 1p.12.2015
+% Datum: 19.12.2015
 
 :- module(tree,[
      appendTree/4, %call: ParentData, NodeData, Tree, NewTree

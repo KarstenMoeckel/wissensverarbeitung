@@ -1,7 +1,8 @@
 % Autor: Robert Maas
-% Datum: 19.12.2015
+% Datum: 20.12.2015
 
 :- module(search,[
+      membersOfLevel/3 %call: +Tree, +Level, -Members
       ]).
       
 membersOfLevel(Tree,Level,Members) :-
@@ -18,16 +19,36 @@ membersOfLevel(Tree,WantedLevel,CurLevel,Members) :-
             childData(Childs,Members)
       ;
          NextLevel is CurLevel + 1,
-         traverseChilds(Childs,WantedLevel,NextLevel,Members)
+         membersOfChilds(Childs,WantedLevel,NextLevel,Members)
    ).
 
-traverseChilds([],_,_,[]).
-traverseChilds([Child| Childs], WantedLevel, NextLevel,Data) :-
+membersOfChilds([],_,_,[]).
+membersOfChilds([Child| Childs], WantedLevel, NextLevel,Data) :-
    membersOfLevel(Child, WantedLevel,NextLevel,FoundData),
-   traverseChilds(Childs,WantedLevel,NextLevel,FoundData2),
+   membersOfChilds(Childs,WantedLevel,NextLevel,FoundData2),
    append(FoundData,FoundData2,Data).
 
 childData([],[]).
 childData([t(Data,_)|Childs],DataList) :-
    childData(Childs,CurData),
    DataList = [Data|CurData].
+
+longesPath(Tree,PathLength,Path) :-
+   nonvar(Tree),
+   Tree = t(Data,Childs),
+   longesChildPath(Childs, ChildLength,ChildPath),
+   PathLength is ChildLength + 1,
+   Path = [Data|ChildPath].
+
+longesChildPath([],0,[]).
+longesChildPath([Child|Childs],LongesPathLength,LongesPath) :-
+   longesChildPath(Childs,PathLength,Path),
+   longesPath(Child,ChildLength,ChildPath),
+   (
+         PathLength > ChildLength ->
+            LongesPathLength = PathLength,
+            LongesPath = Path
+      ;
+         LongesPathLength = ChildLength,
+         LongesPath = ChildPath
+   ).

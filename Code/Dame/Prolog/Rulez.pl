@@ -2,7 +2,8 @@
 % Datum: 19.12.2015
 
 :- module(rulez, [
-     moveDirections/2
+     moveDirections/2,
+     canHit/3 %call:+World,+Hitter, -HitTree
      ]).
 
 :- use_module(game).

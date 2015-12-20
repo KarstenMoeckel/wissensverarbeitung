@@ -7,8 +7,9 @@
                    %OR call: +SourceField, --DestinationField, -Relation
     isFree/2, %call: +World, +Field
     hasNeighbour/3, %call: +World, +Stone, -Neighbours
-    isFieldBetween/3 %call: +Field1, +Field2, -FieldBetween
+    isFieldBetween/3, %call: +Field1, +Field2, -FieldBetween
                      %OR call: +Field1, -Field2, +FieldBetween
+    isBorderCol/1 %call: +Field
     ]).
     
 field(field(Row,Col),Color) :-
