@@ -8,7 +8,6 @@
 :- use_module(board).
 :- use_module(game).
 :- use_module(rulez).
-:- use_module(tree).
 :- use_module(search).
 
 :- dynamic hittenStone/1.
@@ -81,19 +80,18 @@ valueOfStone(World,Stone,Value) :-
    ).
 
 hitBonus(World,Stone,Bonus) :-
-      (
-         tree:appendTree(_,Stone,_,EmptyTree),
-         rulez:canHit(World,Stone,HitTree),
-         EmptyTree \== HitTree
-      ) ->
-         search:longesPath(HitTree,Length,Path),
-         Path = [Stone|Victims],
-         assertVictimList(Victims),
-         Multiplier is Length - 1,
-         evalBonus(canHit,BonusBase),
-         Bonus is Multiplier * BonusBase
-   ;
-      Bonus = 0.
+   rulez:canHit(World,Stone,HitTree),
+   search:longesPath(HitTree,Length,Path),
+   (
+         Length > 1 ->
+            Path = [Stone|Victims],
+            assertVictimList(Victims),
+            Multiplier is Length - 1,
+            evalBonus(canHit,BonusBase),
+            Bonus is Multiplier * BonusBase
+      ;
+         Bonus = 0
+   ).
 
 assertVictimList([]).
 assertVictimList([Victim|Victims]) :-

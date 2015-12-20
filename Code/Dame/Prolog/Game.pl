@@ -1,13 +1,16 @@
 % Autor: Robert Maas
-% Datum: 16.12.2015
+% Datum: 20.12.2015
 
 :- module('game',[
-     createStoneList/1,
+     createStoneList/1, %call: -World
+                        %World: all stones in a list
      stonesUpdated/0,
-     logMessage/1,
-     getLogs/1,
-     loadFile/1,
-     player/2]).
+     logMessage/1, %call: +Message
+     getLogs/1, %call: -Logs
+     loadFile/1, %call: +Stream
+     player/2, %player(StartPosition,Color)
+     performMove/2 %call:+Source, +Destination
+     ]).
      
 :- use_module(board).
 :- use_module(rulez).
@@ -26,8 +29,19 @@ stone(field(6,7),white,normal).
 stone(field(8,1),black,king).
 stone(field(2,7),white,king).
 
-
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
+
+performMove(Source,Destination) :-
+   stone(Source,Color,Type),
+   retract(stone(Source,Color,Type)),
+   assertz(stone(Destination,Color,Type)),
+   (
+      not(board:hasRelation(Source,Destination,_))->
+         board:isFieldBetween(Source,Destination,Between),
+         retract(stone(Between,_,_)) %remove overjumped stone
+      ;
+      true
+   ).
 
 %----------------------Logging---------------------------------------------
 :- dynamic logUpdated/0.
