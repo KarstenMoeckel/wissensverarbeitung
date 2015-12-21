@@ -1,12 +1,12 @@
 % Autor: Robert Maas
-% Datum: 20.12.2015
+% Datum: 21.12.2015
 
 :- module('game',[
      createStoneList/1, %call: -World
                         %World: all stones in a list
-     stonesUpdated/0,
      logMessage/1, %call: +Message
      getLogs/1, %call: -Logs
+     getStones/1, %call: -Stones
      loadFile/1, %call: +Stream
      player/2, %player(StartPosition,Color)
      performMove/2 %call:+Source, +Destination
@@ -41,7 +41,17 @@ performMove(Source,Destination) :-
          retract(stone(Between,_,_)) %remove overjumped stone
       ;
       true
+   ),
+   (
+      not(stonesUpdated) -> assertz(stonesUpdated)
+      ;
+      true
    ).
+
+getStones(Stones) :-
+   stonesUpdated->
+      createStoneList(Stones),
+      retract(stonesUpdated).
 
 %----------------------Logging---------------------------------------------
 :- dynamic logUpdated/0.

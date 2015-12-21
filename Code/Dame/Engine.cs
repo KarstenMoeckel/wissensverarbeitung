@@ -38,7 +38,9 @@ namespace Dame
 
         public bool LoadFile(string file)
         {
-            return PlQuery.PlCall("loadStartPos", new PlTermV(new PlTerm("'" + file.Replace('\\','/') + "'")));
+            bool result = PlQuery.PlCall("loadStartPos", new PlTermV(new PlTerm("'" + file.Replace('\\','/') + "'")));
+            //CheckStones_Thread();
+            return result;
         }
 
         private void CheckHistory_Thread()
@@ -46,12 +48,12 @@ namespace Dame
             PlEngine.PlThreadAttachEngine();
             while (running)
             {
-                if (PlQuery.PlCall("historyUpdated"))
+                PlQuery query = new PlQuery("getLog(Log)");
+                PlTermV termV = query.Solutions.FirstOrDefault();
+                if (termV != default(PlTermV))
                 {
-                    PlQuery query = new PlQuery("history(X)");
-                    PlTerm result = query.Solutions.First()[0];
-                    PlQuery.PlCall("retractall(historyUpdated)");
-                    HistoryEventArgs args = new HistoryEventArgs(result.ToListString());
+                    IEnumerable<string> list = termV[0].ToListString();
+                    HistoryEventArgs args = new HistoryEventArgs(list);
                     HistoryChanged.Invoke(this, args);
                 }
                 Thread.Sleep(250);
@@ -63,16 +65,21 @@ namespace Dame
             PlEngine.PlThreadAttachEngine();
             while (running)
             {
-                if (PlQuery.PlCall("stonesUpdated"))
+                PlQuery query = new PlQuery("getStoneList(Stones)");
+                PlTermV termV = query.Solutions.FirstOrDefault();
+                if (termV != default(PlTermV))
                 {
-                    PlQuery query = new PlQuery("stone(Field,Color,Type)");
-                    IEnumerable<PlTermV> result = query.Solutions;
-                    PlQuery.PlCall("retractall(stonesUpdated)");
-                    StoneChangedEventArgs args = new StoneChangedEventArgs(result.Select<PlTermV, Stone>((v) => new Stone(v)));
+                    IEnumerable<PlTerm> list = termV[0].ToList();
+                    StoneChangedEventArgs args = new StoneChangedEventArgs(list.Select<PlTerm, Stone>((t) => new Stone(t)));
                     StonesChanged.Invoke(this, args);
                 }
                 Thread.Sleep(250);
             }
+        }
+
+        public void Stop()
+        {
+            running = false;
         }
 
         public void MoveStone(Field source, Field destination)

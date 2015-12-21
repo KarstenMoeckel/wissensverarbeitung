@@ -1,9 +1,11 @@
 % Autor: Robert Maas
-% Datum: 16.12.2015
+% Datum: 21.12.2015
 
 :- use_module(game).
 
 getLog(Logs) :- game:getLogs(Logs).
+
+getStoneList(Stones) :- game:getStones(Stones).
 
 loadStartPos(File) :-
    open(File, read, Stream),

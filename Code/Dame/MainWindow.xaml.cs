@@ -79,11 +79,11 @@ namespace Dame
         {
             if (color == StoneColor.Black && type == StoneType.Normal)
                 return new Uri("pack://application:,,,/Images/black_normal.png");
-            if (color == StoneColor.Black && type == StoneType.Queen)
+            if (color == StoneColor.Black && type == StoneType.King)
                 return new Uri("pack://application:,,,/Images/black_queen.png");
             if (color == StoneColor.White && type == StoneType.Normal)
                 return new Uri("pack://application:,,,/Images/white_normal.png");
-            if (color == StoneColor.White && type == StoneType.Queen)
+            if (color == StoneColor.White && type == StoneType.King)
                 return new Uri("pack://application:,,,/Images/white_queen.png");
             throw new ArgumentException("Invalid combination of parameters");
         }
@@ -95,7 +95,7 @@ namespace Dame
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            engine.Dispose();
+            engine.Stop();
         }
 
         private void loadStartPos_Click(object sender, RoutedEventArgs e)

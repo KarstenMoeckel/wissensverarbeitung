@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Dame"
         mc:Ignorable="d"
-        Title="Dame" Height="423" Width="566" MinWidth="566" MinHeight="423" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="Dame" Height="423" Width="716.666" MinWidth="566" MinHeight="423" Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
         <SolidColorBrush x:Key="BlackFieldColor" Color="LightGray"/>
         <SolidColorBrush x:Key="WhiteFieldColor" Color="White"/>
@@ -26,7 +26,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="2"/>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
         <Menu IsMainMenu="True" Grid.ColumnSpan="3" Height="20" VerticalAlignment="Top">
             <MenuItem Header="Datei">
@@ -152,6 +152,6 @@
             <Label Grid.Column="0" Grid.Row="7" Content="7" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18.667"/>
             <Label Grid.Column="0" Grid.Row="8" Content="8" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18.667"/>
         </Grid>
-        <Button x:Name="btn_Start" Content="Start" Grid.Column="2" HorizontalAlignment="Left" Margin="10,352,0,0" VerticalAlignment="Top" Width="130" Click="btn_Start_Click"/>
+        <Button x:Name="btn_Start" Content="Start" Grid.Column="2" HorizontalAlignment="Stretch" Margin="10,352,10,0" VerticalAlignment="Top" Click="btn_Start_Click"/>
     </Grid>
 </Window>

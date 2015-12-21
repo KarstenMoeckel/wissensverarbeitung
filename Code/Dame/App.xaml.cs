@@ -21,12 +21,6 @@ namespace Dame
                 Shutdown();
                 return;
             }
-            if (!PlQuery.PlCall("init."))
-            {
-                MessageBox.Show("Konnte Prologdateien nicht konsultieren.", "FEHLER", MessageBoxButton.OK, MessageBoxImage.Error);
-                Shutdown();
-                return;
-            }
             base.OnStartup(e);
         }
 

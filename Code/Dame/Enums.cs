@@ -3,7 +3,7 @@
     enum StoneType
     {
         Normal,
-        Queen
+        King
     }
 
     public enum StoneColor
