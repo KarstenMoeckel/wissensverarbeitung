@@ -1,14 +1,43 @@
 % Autor: Robert Maas
-% Datum: 19.12.2015
+% Datum: 22.12.2015
 
 :- module(rulez, [
      moveDirections/2,
+     isMoveValid/4, %call: +World, +Stone, +Direction, -Destination
+     canTransformIntoKing/1,
      canHit/3 %call:+World,+Hitter, -HitTree
      ]).
 
 :- use_module(game).
 :- use_module(tree).
 :- use_module(board).
+
+isMoveValid(World,Stone,Direction,Destination):-
+   moveDirections(Stone,Direction),
+   Stone = stone(SField,_,_),
+   board:hasRelation(SField,DField,Direction),
+   (
+         board:isFree(World,DField) ->
+            Destination = DField
+      ;
+         board:hasRelation(DField,JumpTarget,Direction),
+         board:isFree(World,JumpTarget) ->
+            board:stoneAt(World,DField,Victim),
+            canHit(World,Stone,Victim,Direction),
+            Destination = JumpTarget
+   ).
+
+canTransformIntoKing(stone(_,_,king)) :- fail.
+canTransformIntoKing(stone(field(Row,_),Color,normal)) :-
+   game:player(StartPos,Color),
+   (
+      StartPos == top ->
+         Row == 8
+      ;
+      StartPos == bottom ->
+         Row == 1
+   ).
+
      
 %call: +Stone, -Direction
 moveDirections(stone(field(Row,Col),_,king), Direction):-

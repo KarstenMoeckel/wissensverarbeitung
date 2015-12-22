@@ -1,5 +1,5 @@
 % Autor: Robert Maas
-% Datum: 21.12.2015
+% Datum: 22.12.2015
 
 :- module('game',[
      createStoneList/1, %call: -World
@@ -31,10 +31,20 @@ stone(field(2,7),white,king).
 
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
 
+move(Source,Direction,Destination) :-
+   stone(Source,Color,Type),
+   createStoneList(World),
+   rulez:isMoveValid(World, stone(Source,Color,Type),Direction,stone(Destination,_,_)).
+
 performMove(Source,Destination) :-
    stone(Source,Color,Type),
    retract(stone(Source,Color,Type)),
-   assertz(stone(Destination,Color,Type)),
+   (
+      rulez:canTransformIntoKing(stone(Destination,Color,Type)) ->
+         assertz(stone(Destination,Color,king))
+      ;
+         assertz(stone(Destination,Color,Type))
+   ),
    (
       not(board:hasRelation(Source,Destination,_))->
          board:isFieldBetween(Source,Destination,Between),

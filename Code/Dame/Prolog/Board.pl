@@ -9,7 +9,8 @@
     hasNeighbour/3, %call: +World, +Stone, -Neighbours
     isFieldBetween/3, %call: +Field1, +Field2, -FieldBetween
                      %OR call: +Field1, -Field2, +FieldBetween
-    isBorderCol/1 %call: +Field
+    isBorderCol/1, %call: +Field
+    stoneAt/3 %call: +World, +Field, -Stone
     ]).
     
 field(field(Row,Col),Color) :-
@@ -23,7 +24,15 @@ field(field(Row,Col),Color) :-
       ;
          Color='white'
    ).
-   
+
+stoneAt([],_,_) :- fail.
+stoneAt([CheckStone|World],Field,Stone) :-
+   CheckStone = stone(Field,_,_) ->
+      Stone = CheckStone
+   ;
+      stoneAt(World,Field,Stone).
+
+
 numbers(X) :- between(1,8,X).
 
 isFree([],_).

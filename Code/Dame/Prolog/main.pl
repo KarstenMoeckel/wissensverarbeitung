@@ -1,9 +1,13 @@
 % Autor: Robert Maas
-% Datum: 21.12.2015
+% Datum: 22.12.2015
 
 :- use_module(game).
 
 getLog(Logs) :- game:getLogs(Logs).
+
+move(Source, Direction) :-
+   game:move(Source,Direction,Destination) ->
+      game:performMove(Source,Destination).
 
 getStoneList(Stones) :- game:getStones(Stones).
 
