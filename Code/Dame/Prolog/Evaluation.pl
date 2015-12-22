@@ -1,5 +1,5 @@
 % Autor: Robert Maas
-% Datum: 20.12.2015
+% Datum: 22.12.2015
 
 :- module(evaluation,[
       valueOfGame/3 %call: +World, +ViewColor, -Result
@@ -13,7 +13,7 @@
 :- dynamic hittenStone/1.
       
 %evalValue(StoneType, Position, Value)
-evalValue(normal, row1, 1000). %value of normal stone in relation to row 8; no entry for row 8 because stone is then a queen
+evalValue(normal, row1, 1000). %value of normal stone in relation to row 8; no entry for row 8 because stone is then a king
 evalValue(normal, row2, 1020).
 evalValue(normal, row3, 1040).
 evalValue(normal, row4, 1060).
@@ -62,7 +62,6 @@ wrongCalculatedValues(World,ViewColor,[Stone|HittenStones],State,Corrections) :-
       ;
          Corrections = Correction1
    ).
-
 
 hittenValue(stone(_,_,Type),Value) :- evalValue(Type,canBeHitten,Value).
    
@@ -115,7 +114,11 @@ isNormalized(Row,Color,Normalized) :-
    ).
    
 unhittableBonus(Field,Bonus) :-
-   board:isBorderCol(Field) ->
+   (
+      board:isBorderCol(Field)
+      ;
+      board:isBorderRow(Field)
+   ) ->
       evalBonus(unhittable,Bonus)
    ;
    Bonus = 0.

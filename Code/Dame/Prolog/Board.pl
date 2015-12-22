@@ -10,6 +10,7 @@
     isFieldBetween/3, %call: +Field1, +Field2, -FieldBetween
                      %OR call: +Field1, -Field2, +FieldBetween
     isBorderCol/1, %call: +Field
+    isBorderRow/1, %call: +Field
     stoneAt/3 %call: +World, +Field, -Stone
     ]).
     

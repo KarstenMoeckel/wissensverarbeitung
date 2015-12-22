@@ -9,7 +9,8 @@
      getStones/1, %call: -Stones
      loadFile/1, %call: +Stream
      player/2, %player(StartPosition,Color)
-     performMove/2 %call:+Source, +Destination
+     performMove/2, %call:+Source, +Destination
+     move/3 % call: +SourceField, + Direction, - DestinationField
      ]).
      
 :- use_module(board).
@@ -34,7 +35,7 @@ createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type
 move(Source,Direction,Destination) :-
    stone(Source,Color,Type),
    createStoneList(World),
-   rulez:isMoveValid(World, stone(Source,Color,Type),Direction,stone(Destination,_,_)).
+   rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
 
 performMove(Source,Destination) :-
    stone(Source,Color,Type),
