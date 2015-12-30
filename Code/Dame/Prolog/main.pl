@@ -2,6 +2,7 @@
 % Datum: 22.12.2015
 
 :- use_module(game).
+:- use_module(ai).
 
 getLog(Logs) :- game:getLogs(Logs).
 
