@@ -5,12 +5,45 @@
      moveDirections/2,
      isMoveValid/4, %call: +World, +Stone, +Direction, -Destination
      canTransformIntoKing/1,
-     canHit/3 %call:+World,+Hitter, -HitTree
+     canHit/3, %call:+World,+Hitter, -HitTree
+     isEnemy/2, %call: +Player, -Enemy
+     isGameOver/2 %call: +World, --Winner
      ]).
 
 :- use_module(game).
 :- use_module(tree).
 :- use_module(board).
+
+isGameOver(World,Winner) :-
+   stoneCount(World,WhiteCount,BlackCount),
+   (
+      WhiteCount == 0 ->
+         Winner = white
+      ;
+      BlackCount == 0 ->
+         Winner == black
+      ;
+      fail
+   ).
+
+stoneCount([], 0, 0).
+stoneCount([stone(_,Color,_)|World], WhiteCount,BlackCount) :-
+   stoneCount(World,TmpWhite,TmpBlack),
+   (
+      Color == black ->
+         WhiteCount = TmpWhite,
+         BlackCount is TmpBlack + 1
+      ;
+         WhiteCount is TmpWhite + 1,
+         BlackCount = TmpBlack
+   ).
+
+isEnemy(Player,Enemy) :-
+   Player == black ->
+      Enemy = white
+   ;
+   Player == white ->
+      Enemy == black.
 
 isMoveValid(World,Stone,Direction,Destination):-
    moveDirections(Stone,Direction),

@@ -1,5 +1,5 @@
 % Autor: Robert Maas
-% Datum: 22.12.2015
+% Datum: 02.01.2016
 
 :- module('game',[
      createStoneList/1, %call: -World
@@ -10,7 +10,8 @@
      loadFile/1, %call: +Stream
      player/2, %player(StartPosition,Color)
      performMove/2, %call:+Source, +Destination
-     move/3 % call: +SourceField, + Direction, - DestinationField
+     move/3, % call: +SourceField, + Direction, - DestinationField
+     stoneAt/2 %call: +SourceField, -Stone
      ]).
      
 :- use_module(board).
@@ -31,6 +32,10 @@ stone(field(8,1),black,king).
 stone(field(2,7),white,king).
 
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
+
+stoneAt(Field,Stone) :-
+   stone(Field,Color,Type),
+   Stone = stone(Field,Color,Type).
 
 move(Source,Direction,Destination) :-
    stone(Source,Color,Type),
@@ -81,7 +86,7 @@ logMessage(Message) :-
       ;
          true
    ).
-   
+
 getLogs(Logs) :-
    logUpdated->
       logs(Logs),

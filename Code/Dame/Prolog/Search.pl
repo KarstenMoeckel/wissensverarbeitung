@@ -2,7 +2,8 @@
 % Datum: 20.12.2015
 
 :- module(search,[
-      membersOfLevel/3 %call: +Tree, +Level, -Members
+      membersOfLevel/3, %call: +Tree, +Level, -Members
+      longesPath/3 %call: +Tree, --PathLength, --Path
       ]).
       
 membersOfLevel(Tree,Level,Members) :-
