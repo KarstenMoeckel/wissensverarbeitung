@@ -15,7 +15,7 @@ namespace Dame
         private Thread stoneThread;
         private bool running;
         public Option Options { get; private set; }
-
+        
         public Engine()
         {
             historyThread = new Thread(new ThreadStart(CheckHistory_Thread));
@@ -82,9 +82,44 @@ namespace Dame
             running = false;
         }
 
-        public void MoveStone(Field source, Field destination)
+        public IEnumerable<Field> MoreHitsPossible(Field source)
         {
-            PlQuery.PlCall("moveStone", new PlTermV(source.ToTerm(), destination.ToTerm()));
+            PlQuery query = new PlQuery("moreMovesPossible", new PlTermV(source.ToTerm(), new PlTerm("Hits")));
+            PlTermV termV = query.Solutions.FirstOrDefault();
+            if (termV == null)
+                return null;
+            IEnumerable<PlTerm> list = termV[0].ToList();
+            return list.Select<PlTerm, Field>((t) => new Field(t));
+        }
+        
+        public void StartNextTurn()
+        {
+            PlQuery.PlCall("nextTurn");
+        }
+
+        public Field MoveStone(Field source, Field destination)
+        {
+            PlQuery query = new PlQuery("moveStone", new PlTermV(source.ToTerm(), destination.ToTerm(), new PlTerm("NewDestination")));
+            PlTermV termV = query.Solutions.FirstOrDefault();
+            return termV == null ? null : new Field(termV[0]);
+        }
+
+        private string GetDirection(Field source, Field destination)
+        {
+            if (source.Row > destination.Row)
+            {
+                if (source.Column > destination.Column)
+                    return "bottomRight";
+                else
+                    return "bottomLeft";
+            }
+            else
+            {
+                if (source.Column > destination.Column)
+                    return "topRight";
+                else
+                    return "topLeft";
+            }
         }
 
         #region IDisposable Support

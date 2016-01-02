@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace Dame
@@ -13,14 +15,45 @@ namespace Dame
     public partial class MainWindow : Window
     {
         private Engine engine;
-        private Field moveSourceField;
+        private Field _MoveSourceField;
+        private Field MoveSourceField
+        {
+            get { return _MoveSourceField; }
+            set
+            {
+                IEnumerable<Button> list = gameField.Children.OfType<Button>();
+                if (_MoveSourceField != null)
+                {
+
+                    Button btn = GetButtonByCell(list, _MoveSourceField);
+                    btn.Tag = null;
+                }
+                _MoveSourceField = value;
+                if (value != null)
+                {
+                    Button btn = GetButtonByCell(list, _MoveSourceField);
+                    btn.Tag = "move";
+                }
+            }
+        }
 
         public MainWindow()
         {
             InitializeComponent();
             engine = new Engine();
             engine.HistoryChanged += Engine_HistoryChanged;
-            engine.StonesChanged += Engine_StonesChanged;
+            engine.StonesChanged += Engine_StonesChanged;            
+        }
+
+        private Button GetButtonByCell(Grid grid,Field field)
+        {
+            IEnumerable<Button> list = grid.Children.OfType<Button>();
+            return GetButtonByCell(list, field);
+        }
+
+        private Button GetButtonByCell(IEnumerable<Button> list, Field field)
+        {
+            return list.FirstOrDefault((b) => Grid.GetColumn(b) == field.Column && Grid.GetRow(b) == field.Row);
         }
 
         private void Engine_StonesChanged(object sender, StoneChangedEventArgs e)
@@ -28,7 +61,10 @@ namespace Dame
             Dispatcher.Invoke(new Action(() =>
             {
                 foreach (Button button in gameField.Children.OfType<Button>())
+                {
                     button.Content = null;
+                    button.Tag = null;
+                }
                 foreach (Stone stone in e.Stones)
                 {
                     BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
@@ -36,7 +72,7 @@ namespace Dame
                     img.Source = image;
                     img.Stretch = Stretch.Fill;
                     Field f = stone.Field;
-                    Button btn = gameField.Children.OfType<Button>().FirstOrDefault((b) => Grid.GetColumn(b) == f.Column && Grid.GetRow(b) == f.Row);
+                    Button btn = GetButtonByCell(gameField, f);
                     if (btn == null)
                         throw new Exception(string.Format("Could not find button in Cell {0}/{1}", f.Row, f.Column));
                     btn.Content = img;
@@ -59,14 +95,33 @@ namespace Dame
             Button b = (Button)sender;
             int row = Grid.GetRow(b);
             int col = Grid.GetColumn(b);
-            if (moveSourceField == null)
+            if (MoveSourceField == null)
             {
-                moveSourceField = new Field(row, col);
+                MoveSourceField = new Field(row, col);
+                b.Tag = "move";
             }
             else
             {
-                engine.MoveStone(moveSourceField, new Field(row, col));
-                moveSourceField = null;
+                Field destination = engine.MoveStone(MoveSourceField, new Field(row, col));
+                if (destination != null)
+                {
+                    IEnumerable<Field> hits = engine.MoreHitsPossible(destination);
+                    if (hits != null)
+                    {
+                        IEnumerable<Button> buttonList = gameField.Children.OfType<Button>();
+                        foreach(Field field in hits)
+                        {
+                            Button button = GetButtonByCell(buttonList, field);
+                            button.Tag = "hit";
+                        }
+                        MoveSourceField = destination;
+                        return;
+                    }
+                    engine.StartNextTurn();
+                    MoveSourceField = null;
+                    return;
+                }
+                MoveSourceField = null;
             }
         }
         
