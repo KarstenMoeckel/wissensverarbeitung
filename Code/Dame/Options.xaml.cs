@@ -36,6 +36,12 @@ namespace Dame
             engine.Options.Difficulty = Difficulty;
             engine.Options.Player = Player;
             engine.Options.StartColor = StartColor;
+            Close();
+        }
+
+        private void button_Click_1(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

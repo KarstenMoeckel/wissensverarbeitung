@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Dame"
         mc:Ignorable="d"
-        Title="Dame" Height="423" Width="716.666" MinWidth="566" MinHeight="423" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="Dame" Height="423" Width="716.666" MinWidth="566" MinHeight="423" Loaded="Window_Loaded" Closed="Window_Closed" DataContext="{Binding Mode=OneWay, RelativeSource={RelativeSource Self}}">
     <Window.Resources>
         <local:ModuloConverter x:Key="ModuloConverter"/>
         <Style TargetType="Button" x:Key="GameFieldStyle">
@@ -88,7 +88,15 @@
         </Menu>
         <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" Margin="0,25,0,0"/>
 
-        <ListBox Grid.Column="2" x:Name="lb_History" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,59,10,45"/>
+        <ListBox Grid.Column="2" x:Name="lb_History" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,59,10,45">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
         <Label Grid.Column="2" Content="Verlauf:" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,30,10,0" Height="24"/>
         <Grid x:Name="gameField" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,30,20,20" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
             <Grid.RowDefinitions>

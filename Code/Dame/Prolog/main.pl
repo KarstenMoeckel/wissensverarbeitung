@@ -1,5 +1,16 @@
 % Autor: Robert Maas
-% Datum: 02.01.2016
+% Datum: 04.01.2016
+
+:- module(main, [
+   getLog/1,
+   moveStone/3,
+   areMoreHitsPossible/2,
+   getStoneList/1,
+   loadStartPos/1,
+   option/2,
+   nextTurn/0,
+   startGame/0
+   ]).
 
 :- use_module(game).
 :- use_module(search).
@@ -9,23 +20,88 @@
 :- dynamic player/1.
 :- dynamic turn/1.
 :- dynamic gameRunning/0.
+:- dynamic usedStone/1.
+:- dynamic stonesLoaded/0.
 
 getLog(Logs) :- game:getLogs(Logs).
 
-move(Source, Direction, Destination) :-
-   gameRunning,
-   player(Player),
-   turn(Player),
-   game:move(Source,Direction,Destination) ->
-      game:performMove(Source,Destination).
+moveStone(Source, Direction, Destination) :-
+   isGameRunning,
+   isPlayerTurn,
+   hasFieldStone(Source,Stone),
+   isValidStone(Stone),
+   doMove(Source, Direction, Destination),
+   (
+      usedStone(_) ->
+         retract(usedStone(_))
+      ;
+      true
+   ),
+   Stone = stone(_,Color,Type),
+   assert(usedStone(stone(Destination,Color,Type))).
 
-moreMovesPossible(Source, PossibleHits) :-
+isValidStone(Stone) :-
+   usedStone(Used) ->
+      (
+         Used == Stone ->
+            true
+         ;
+            game:logMessage('Es muss mit dem gleichem Stein weitergespielt werden.'),
+            fail
+      )
+   ;
+      isPlayerStone(Stone).
+
+hasFieldStone(Field,Stone) :-
+   game:stoneAt(Field,Stone) ->
+      true
+   ;
+      game:logMessage('An dem Feld ist kein Stein.'),
+      fail.
+
+doMove(Source, Direction, Destination) :-
+   game:move(Source,Direction,Destination) ->
+      game:performMove(Source,Destination)
+   ;
+   game:logMessage('Der Zug ist ungültig.'),
+   fail.
+
+isPlayerStone(stone(_,Color,_)) :-
+   player(Color)->
+         true
+   ;
+      game:logMessage('Das war nicht die Spielerfarbe'),
+      fail.
+   
+isPlayerTurn :-
+   (
+      player(Player),
+      turn(Player)
+   ) ->
+      true
+   ;
+   game:logMessage('Der menschliche Spieler ist nicht am Zug.'),
+   fail.
+
+isGameRunning :-
+   gameRunning ->
+      true
+   ;
+   game:logMessage('Das Spiel wurde nicht gestartet.'),
+   fail.
+
+areMoreHitsPossible(Source, PossibleHits) :-
    game:createStoneList(World),
    game:stoneAt(Source,Stone),
    rulez:canHit(World, Stone, HitTree),
-   not(tree:isLeaf(HitTree)),
    search:membersOfLevel(HitTree,2,HitStones),
-   getFields(HitStones,PossibleHits).
+   (
+      HitStones == [] ->
+         retractall(usedStone(_)),
+         fail
+      ;
+      getFields(HitStones,PossibleHits)
+   ).
 
 getFields([],[]).
 getFields([stone(Field,_,_)| StoneList],FieldList) :-
@@ -39,6 +115,12 @@ loadStartPos(File) :-
    open(File, read, Stream),
    game:loadFile(Stream),
    close(Stream),
+   (
+      not(stonesLoaded) ->
+         assert(stonesLoaded)
+      ;
+      true
+   ),
    atom_concat('Die Datei ', File, Message_tmp),
    atom_concat(Message_tmp, ' wurde erfolgreich geladen.', Message),
    game:logMessage(Message).
@@ -59,25 +141,49 @@ option(startColor, Color) :-
    not(gameRunning),
    retractall(turn(_)),
    assert(turn(Color)).
+
+hasPlayerWon :-
+   rulez:isGameOver(Winner) ->
+   (
+      Winner == black ->
+         Message = 'schwarz hat gewonnen.'
+      ;
+      Winner == white ->
+         Message = 'weiss hat gewonnen.'
+   ),
+   game:logMessage(Message),
+   retract(gameRunning).
+
+changeTurn :-
+   turn(Player),
+   rulez:isEnemy(Player,Enemy),
+   retract(turn(Player)),
+   assert(turn(Enemy)).
    
 nextTurn :-
-   gameRunning,
+   isGameRunning,
    (
-      rulez:isGameOver(Winner) ->
+      not(usedStone(_)) ->
          (
-            Winner == black ->
-               Message = 'schwarz hat gewonnen.'
+            hasPlayerWon
             ;
-            Winner == white ->
-               Message = 'weiss hat gewonnen.'
-         ),
-         game:logMessage(Message),
-         retract(gameRunning)
+            changeTurn
+         )
       ;
-      (
-         turn(Player),
-         rulez:isEnemy(Player,Enemy),
-         retract(turn(Player)),
-         assert(turn(Enemy))
-      )
+      game:logMessage('Es müssen noch Steine geschlagen werden.'),
+         fail
    ).
+   
+startGame :-
+   (
+      stonesLoaded,
+      turn(_),
+      player(_),
+      not(gameRunning)
+   ) ->
+      retract(stonesLoaded),
+      assert(gameRunning),
+      game:logMessage('Das Spiel wurde gestartet.')
+   ;
+      game:logMessage('Fehler beim Starten vom Spiel.'),
+      fail.

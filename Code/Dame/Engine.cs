@@ -30,16 +30,15 @@ namespace Dame
             stoneThread.Start();
         }
 
-        public void Start()
+        public bool Start()
         {
             Options.Save();
-            PlQuery.PlCall("startGame");
+            return PlQuery.PlCall("main:startGame");
         }
 
         public bool LoadFile(string file)
         {
             bool result = PlQuery.PlCall("loadStartPos", new PlTermV(new PlTerm("'" + file.Replace('\\','/') + "'")));
-            //CheckStones_Thread();
             return result;
         }
 
@@ -84,38 +83,39 @@ namespace Dame
 
         public IEnumerable<Field> MoreHitsPossible(Field source)
         {
-            PlQuery query = new PlQuery("moreMovesPossible", new PlTermV(source.ToTerm(), new PlTerm("Hits")));
+            PlQuery query = new PlQuery("areMoreHitsPossible", new PlTermV(source.ToTerm(), new PlTerm("Hits")));
             PlTermV termV = query.Solutions.FirstOrDefault();
-            if (termV == null)
+            if (termV.Size == 0)
                 return null;
             IEnumerable<PlTerm> list = termV[0].ToList();
             return list.Select<PlTerm, Field>((t) => new Field(t));
         }
         
-        public void StartNextTurn()
+        public bool StartNextTurn()
         {
-            PlQuery.PlCall("nextTurn");
+            return PlQuery.PlCall("main:nextTurn");
         }
 
         public Field MoveStone(Field source, Field destination)
         {
-            PlQuery query = new PlQuery("moveStone", new PlTermV(source.ToTerm(), destination.ToTerm(), new PlTerm("NewDestination")));
+            string direction = GetDirection(source, destination);
+            PlQuery query = new PlQuery("moveStone", new PlTermV(source.ToTerm(), new PlTerm(direction), new PlTerm("NewDestination")));
             PlTermV termV = query.Solutions.FirstOrDefault();
-            return termV == null ? null : new Field(termV[0]);
+            return termV.Size == 0 ? null : new Field(termV[0]);
         }
 
         private string GetDirection(Field source, Field destination)
         {
-            if (source.Row > destination.Row)
+            if (source.Row < destination.Row)
             {
-                if (source.Column > destination.Column)
+                if (source.Column < destination.Column)
                     return "bottomRight";
                 else
                     return "bottomLeft";
             }
             else
             {
-                if (source.Column > destination.Column)
+                if (source.Column < destination.Column)
                     return "topRight";
                 else
                     return "topLeft";

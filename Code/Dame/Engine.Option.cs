@@ -68,10 +68,9 @@ namespace Dame
             {
                 if (!Changed)
                     return;
-                PlQuery.PlCall("retractall(option(_,_))");
-                PlQuery.PlCall(string.Format("assertz(option(searchDepth,{0}))", (int)Difficulty));
-                PlQuery.PlCall(string.Format("assertz(option(player,{0}))", Player.ToString().ToLower()));
-                PlQuery.PlCall(string.Format("assertz(option(startColor,{0}))", StartColor.ToString().ToLower()));
+                PlQuery.PlCall(string.Format("option(treeDepth,{0})", (int)Difficulty));
+                PlQuery.PlCall(string.Format("option(playerColor,{0})", Player.ToString().ToLower()));
+                PlQuery.PlCall(string.Format("option(startColor,{0})", StartColor.ToString().ToLower()));
                 Changed = false;
             }
         }

@@ -37,12 +37,14 @@ namespace Dame
             }
         }
 
+        public IEnumerable<string> History { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
             engine = new Engine();
             engine.HistoryChanged += Engine_HistoryChanged;
-            engine.StonesChanged += Engine_StonesChanged;            
+            engine.StonesChanged += Engine_StonesChanged;
         }
 
         private Button GetButtonByCell(Grid grid,Field field)
@@ -84,9 +86,7 @@ namespace Dame
         {
             Dispatcher.Invoke(new Action(() =>
             {
-                lb_History.Items.Clear();
-                foreach (string str in e.History)
-                    lb_History.Items.Add(str);
+                lb_History.ItemsSource = e.History;
             }));
         }
 
@@ -97,8 +97,11 @@ namespace Dame
             int col = Grid.GetColumn(b);
             if (MoveSourceField == null)
             {
-                MoveSourceField = new Field(row, col);
-                b.Tag = "move";
+                if (b.Content != null)
+                {
+                    MoveSourceField = new Field(row, col);
+                    b.Tag = "move";
+                }
             }
             else
             {

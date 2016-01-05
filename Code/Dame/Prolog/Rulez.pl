@@ -118,7 +118,6 @@ canMultiHit(World,Hitter,PreviousVictim,CurTree,HitTree) :-
    hasHitPossibility(World,Hitter, Neighbours,Victims),
    hasFurtherHits(World,CurTree,Hitter, PreviousVictim, Victims, HitTree).
 
-%hasFurterHits(_, CurTree, _,_,[],CurTree).
 hasFurtherHits(World, CurTree,Hitter, PrevVictim,Victims, NewTree) :-
    tree:appendTree(PrevVictim,Victim,CurTree,TmpTree),
    (
