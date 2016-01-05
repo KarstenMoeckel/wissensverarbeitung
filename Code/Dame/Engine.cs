@@ -3,24 +3,73 @@ using System.Collections.Generic;
 using System.Linq;
 using SbsSW.SwiPlCs;
 using System.Threading;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace Dame
 {
-    partial class Engine: IDisposable
+    public partial class Engine: IDisposable, INotifyPropertyChanged
     {
-        public event EventHandler<StoneChangedEventArgs> StonesChanged;
-        public event EventHandler<HistoryEventArgs> HistoryChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private Thread historyThread;
         private Thread stoneThread;
+        private Thread gameThread;
         private bool running;
+        private IEnumerable<string> _History;
+        private IEnumerable<Stone> _Stones;
+        private IEnumerable<Field> _PossibleHits;
+        private Field _StoneToMove;
+
         public Option Options { get; private set; }
-        
+        public IEnumerable<string> History
+        {
+            get { return _History; }
+            private set
+            {
+                _History = value;
+                FirePropertyChanged(nameof(History));
+            }
+        }
+        public IEnumerable<Stone> Stones
+        {
+            get { return _Stones; }
+            private set
+            {
+                _Stones = value;
+                FirePropertyChanged(nameof(Stones));
+            }
+        }
+        public Field StoneToMove
+        {
+            get { return _StoneToMove; }
+            set
+            {
+                _StoneToMove = value;
+                FirePropertyChanged(nameof(StoneToMove));
+            }
+        }
+        public Field MoveDestination { get; set; }
+        public IEnumerable<Field> PossibleHits
+        {
+            get { return _PossibleHits; }
+            set
+            {
+                _PossibleHits = value;
+                FirePropertyChanged(nameof(PossibleHits));
+            }
+        }
+
         public Engine()
         {
             historyThread = new Thread(new ThreadStart(CheckHistory_Thread));
             stoneThread = new Thread(new ThreadStart(CheckStones_Thread));
             Options = new Option();
+        }
+
+        private void FirePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public void Init()
@@ -33,7 +82,13 @@ namespace Dame
         public bool Start()
         {
             Options.Save();
-            return PlQuery.PlCall("main:startGame");
+            if (PlQuery.PlCall("main:startGame"))
+            {
+                gameThread = new Thread(new ThreadStart(runGame_Thread));
+                gameThread.Start();
+                return true;
+            }
+            return false;
         }
 
         public bool LoadFile(string file)
@@ -42,21 +97,63 @@ namespace Dame
             return result;
         }
 
+        private void doAIMove()
+        {
+            //TODO: add AI-Call
+        }
+
+        private void doHumanMove()
+        {
+            while (true)
+            {
+                while (StoneToMove == default(Field) || MoveDestination == default(Field))
+                    Thread.Sleep(250);
+                Field destination = MoveStone(StoneToMove, MoveDestination);
+                MoveDestination = default(Field);
+                if (destination != default(Field))
+                {
+                    while ((PossibleHits = MoreHitsPossible(destination)).Count() != 0)
+                    {
+                        while (MoveDestination == default(Field))
+                            Thread.Sleep(250);
+                        destination = MoveStone(destination, MoveDestination);
+                        MoveDestination = default(Field);
+                    }
+                    StoneToMove = default(Field);
+                    break;
+                }
+            }
+        }
+
+        private void runGame_Thread()
+        {
+            PlEngine.PlThreadAttachEngine();
+            while(PlQuery.PlCall("main:gameRunning"))
+            {
+                if(PlQuery.PlCall("isAIMove"))
+                    doAIMove();
+                else
+                    doHumanMove();
+                StartNextTurn();
+            }
+        }
+
         private void CheckHistory_Thread()
         {
             PlEngine.PlThreadAttachEngine();
             while (running)
             {
-                PlQuery query = new PlQuery("getLog(Log)");
-                PlTermV termV = query.Solutions.FirstOrDefault();
-                if (termV != default(PlTermV))
+                using (PlQuery query = new PlQuery("getLog(Log)"))
                 {
-                    IEnumerable<string> list = termV[0].ToListString();
-                    HistoryEventArgs args = new HistoryEventArgs(list);
-                    HistoryChanged.Invoke(this, args);
+                    PlTermV termV = query.Solutions.FirstOrDefault();
+                    if (termV.Size != 0)
+                    {
+                        History = termV[0].ToListString();
+                    }
                 }
                 Thread.Sleep(250);
             }
+            PlEngine.PlThreadDestroyEngine();
         }
 
         private void CheckStones_Thread()
@@ -64,16 +161,17 @@ namespace Dame
             PlEngine.PlThreadAttachEngine();
             while (running)
             {
-                PlQuery query = new PlQuery("getStoneList(Stones)");
-                PlTermV termV = query.Solutions.FirstOrDefault();
-                if (termV != default(PlTermV))
+                using (PlQuery query = new PlQuery("getStoneList(Stones)"))
                 {
-                    IEnumerable<PlTerm> list = termV[0].ToList();
-                    StoneChangedEventArgs args = new StoneChangedEventArgs(list.Select<PlTerm, Stone>((t) => new Stone(t)));
-                    StonesChanged.Invoke(this, args);
+                    PlTermV termV = query.Solutions.FirstOrDefault();
+                    if (termV.Size != 0)
+                    {
+                        Stones = termV[0].ToList().Select((t) => new Stone(t)).ToList();
+                    }
                 }
                 Thread.Sleep(250);
             }
+            PlEngine.PlThreadDestroyEngine();
         }
 
         public void Stop()
@@ -81,7 +179,7 @@ namespace Dame
             running = false;
         }
 
-        public IEnumerable<Field> MoreHitsPossible(Field source)
+        private IEnumerable<Field> MoreHitsPossible(Field source)
         {
             PlQuery query = new PlQuery("areMoreHitsPossible", new PlTermV(source.ToTerm(), new PlTerm("Hits")));
             PlTermV termV = query.Solutions.FirstOrDefault();
@@ -91,17 +189,17 @@ namespace Dame
             return list.Select<PlTerm, Field>((t) => new Field(t));
         }
         
-        public bool StartNextTurn()
+        private bool StartNextTurn()
         {
             return PlQuery.PlCall("main:nextTurn");
         }
 
-        public Field MoveStone(Field source, Field destination)
+        private Field MoveStone(Field source, Field destination)
         {
             string direction = GetDirection(source, destination);
             PlQuery query = new PlQuery("moveStone", new PlTermV(source.ToTerm(), new PlTerm(direction), new PlTerm("NewDestination")));
             PlTermV termV = query.Solutions.FirstOrDefault();
-            return termV.Size == 0 ? null : new Field(termV[0]);
+            return termV.Size == 0 ? default(Field) : new Field(termV[0]);
         }
 
         private string GetDirection(Field source, Field destination)

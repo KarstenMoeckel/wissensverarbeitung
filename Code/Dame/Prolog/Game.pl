@@ -101,7 +101,17 @@ loadFile(Stream) :-
       get_char(Stream, Char),
       not(processChar(Char)),
    !,
-   (not(stonesUpdated)-> assertz(stonesUpdated); true).
+   (
+      Char == end_of_file ->
+         (
+            not(stonesUpdated)->
+               assertz(stonesUpdated)
+            ;
+               true
+         )
+      ;
+         fail
+   ).
    
 processChar(end_of_file) :- !, fail.
 processChar('_') :- %empty field

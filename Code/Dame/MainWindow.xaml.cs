@@ -14,37 +14,64 @@ namespace Dame
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Engine engine;
-        private Field _MoveSourceField;
-        private Field MoveSourceField
-        {
-            get { return _MoveSourceField; }
-            set
-            {
-                IEnumerable<Button> list = gameField.Children.OfType<Button>();
-                if (_MoveSourceField != null)
-                {
+        private Button currentMoveStone;
+        private IList<Button> possibleHits;
 
-                    Button btn = GetButtonByCell(list, _MoveSourceField);
-                    btn.Tag = null;
-                }
-                _MoveSourceField = value;
-                if (value != null)
-                {
-                    Button btn = GetButtonByCell(list, _MoveSourceField);
-                    btn.Tag = "move";
-                }
-            }
-        }
+        public Engine Engine { get; private set; }
 
         public IEnumerable<string> History { get; private set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            engine = new Engine();
-            engine.HistoryChanged += Engine_HistoryChanged;
-            engine.StonesChanged += Engine_StonesChanged;
+            Engine = new Engine();
+            Engine.PropertyChanged += Engine_PropertyChanged;
+            possibleHits = new List<Button>();
+        }
+
+        private void Engine_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Engine.Stones):
+                    Dispatcher.Invoke(new Action(updateStones));
+                    break;
+                case nameof(Engine.StoneToMove):
+                    updateMoveStone();
+                    break;
+                case nameof(Engine.PossibleHits):
+                    Dispatcher.Invoke(new Action(updateHits));
+                    break;
+            }
+        }
+
+        private void updateHits()
+        {
+            foreach (Button b in possibleHits)
+                b.Tag = null;
+            possibleHits.Clear();
+            IEnumerable<Button> list = gameField.Children.OfType<Button>();
+            foreach(Field f in Engine.PossibleHits)
+            {
+                Button b = GetButtonByCell(list, f);
+                b.Tag = "hit";
+                possibleHits.Add(b);
+            }
+        }
+
+        private void updateMoveStone()
+        {
+            if (currentMoveStone != null)
+                currentMoveStone.Tag = null;
+            if (Engine.StoneToMove == default(Field))
+            {
+                currentMoveStone = null;
+            }
+            else
+            {
+                currentMoveStone = GetButtonByCell(gameField, Engine.StoneToMove);
+                currentMoveStone.Tag = "move";
+            }
         }
 
         private Button GetButtonByCell(Grid grid,Field field)
@@ -58,36 +85,18 @@ namespace Dame
             return list.FirstOrDefault((b) => Grid.GetColumn(b) == field.Column && Grid.GetRow(b) == field.Row);
         }
 
-        private void Engine_StonesChanged(object sender, StoneChangedEventArgs e)
+        private void updateStones()
         {
-            Dispatcher.Invoke(new Action(() =>
+            foreach (Stone stone in Engine.Stones)
             {
-                foreach (Button button in gameField.Children.OfType<Button>())
-                {
-                    button.Content = null;
-                    button.Tag = null;
-                }
-                foreach (Stone stone in e.Stones)
-                {
-                    BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
-                    Image img = new Image();
-                    img.Source = image;
-                    img.Stretch = Stretch.Fill;
-                    Field f = stone.Field;
-                    Button btn = GetButtonByCell(gameField, f);
-                    if (btn == null)
-                        throw new Exception(string.Format("Could not find button in Cell {0}/{1}", f.Row, f.Column));
-                    btn.Content = img;
-                }
-            }));
-        }
-
-        private void Engine_HistoryChanged(object sender, HistoryEventArgs e)
-        {
-            Dispatcher.Invoke(new Action(() =>
-            {
-                lb_History.ItemsSource = e.History;
-            }));
+                BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
+                Image img = new Image();
+                img.Source = image;
+                img.Stretch = Stretch.Fill;
+                Field f = stone.Field;
+                Button btn = GetButtonByCell(gameField, f);
+                btn.Content = img;
+            }
         }
 
         private void GameFieldButton_Click(object sender, RoutedEventArgs e)
@@ -95,42 +104,23 @@ namespace Dame
             Button b = (Button)sender;
             int row = Grid.GetRow(b);
             int col = Grid.GetColumn(b);
-            if (MoveSourceField == null)
+            Field field = new Field(row, col);
+            if (Engine.StoneToMove == default(Field))
             {
-                if (b.Content != null)
-                {
-                    MoveSourceField = new Field(row, col);
-                    b.Tag = "move";
-                }
+                Engine.StoneToMove = field;
             }
             else
             {
-                Field destination = engine.MoveStone(MoveSourceField, new Field(row, col));
-                if (destination != null)
-                {
-                    IEnumerable<Field> hits = engine.MoreHitsPossible(destination);
-                    if (hits != null)
-                    {
-                        IEnumerable<Button> buttonList = gameField.Children.OfType<Button>();
-                        foreach(Field field in hits)
-                        {
-                            Button button = GetButtonByCell(buttonList, field);
-                            button.Tag = "hit";
-                        }
-                        MoveSourceField = destination;
-                        return;
-                    }
-                    engine.StartNextTurn();
-                    MoveSourceField = null;
-                    return;
-                }
-                MoveSourceField = null;
+                if(Engine.StoneToMove == field)
+                    Engine.StoneToMove = default(Field);
+                else
+                    Engine.MoveDestination = field;
             }
         }
         
         private void btn_Start_Click(object sender, RoutedEventArgs e)
         {
-            engine.Start();
+            Engine.Start();
         }
         
         private Uri GetStoneImageUri(StoneColor color, StoneType type)
@@ -148,12 +138,12 @@ namespace Dame
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            engine.Init();
+            Engine.Init();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            engine.Stop();
+            Engine.Stop();
         }
 
         private void loadStartPos_Click(object sender, RoutedEventArgs e)
@@ -165,14 +155,14 @@ namespace Dame
             bool? result = dialog.ShowDialog();
             if (result.Value)
             {
-                if (!engine.LoadFile(dialog.FileName))
+                if (!Engine.LoadFile(dialog.FileName))
                     MessageBox.Show("Die StartPositionen konnen nicht geladen werden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
         private void Options_Click(object sender, RoutedEventArgs e)
         {
-            Options opt = new Options(engine);
+            Options opt = new Options(Engine);
             opt.ShowDialog();
         }
     }

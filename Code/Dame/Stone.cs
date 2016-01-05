@@ -3,7 +3,7 @@ using System;
 
 namespace Dame
 {
-    class Stone
+    public class Stone
     {
         public Field Field { get; private set; }
         public StoneColor Color { get; private set; }

@@ -1,6 +1,6 @@
 ﻿namespace Dame
 {
-    enum StoneType
+    public enum StoneType
     {
         Normal,
         King

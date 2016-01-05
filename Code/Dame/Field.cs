@@ -3,7 +3,7 @@ using System;
 
 namespace Dame
 {
-    class Field
+    public struct Field
     {
         public int Row { get; private set; }
         public int Column { get; private set; }
@@ -23,6 +23,31 @@ namespace Dame
         public PlTerm ToTerm()
         {
             return new PlTerm(string.Format("field({0},{1})", Row, Column));
+        }
+
+        public static bool operator == (Field f1, Field f2)
+        {
+            return f1.Equals(f2);
+        }
+
+        public static bool operator !=(Field f1,Field f2)
+        {
+            return !(f1.Equals(f2));
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Field))
+                return false;
+
+            Field f = (Field)obj;
+            return f.Column == Column && f.Row == Row;
+        }
+
+        public override int GetHashCode()
+        {
+            int sum = Row * 10 + Column;
+            return sum.GetHashCode();
         }
     }
 }

@@ -76,14 +76,12 @@
     </ApplicationDefinition>
     <Compile Include="Enums.cs" />
     <Compile Include="Field.cs" />
-    <Compile Include="HistoryEventArgs.cs" />
     <Compile Include="ModuloConverter.cs" />
     <Compile Include="Options.xaml.cs">
       <DependentUpon>Options.xaml</DependentUpon>
     </Compile>
     <Compile Include="RadioButtonCheckedConverter.cs" />
     <Compile Include="Stone.cs" />
-    <Compile Include="StoneChangedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

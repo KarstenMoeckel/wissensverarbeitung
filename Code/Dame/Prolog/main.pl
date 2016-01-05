@@ -9,19 +9,20 @@
    loadStartPos/1,
    option/2,
    nextTurn/0,
-   startGame/0
+   startGame/0,
+   isAIMove/0
    ]).
 
 :- use_module(game).
 :- use_module(search).
 :- use_module(ai).
-:- use_module(tree).
 
 :- dynamic player/1.
 :- dynamic turn/1.
 :- dynamic gameRunning/0.
 :- dynamic usedStone/1.
 :- dynamic stonesLoaded/0.
+:- dynamic hitMove/0.
 
 getLog(Logs) :- game:getLogs(Logs).
 
@@ -38,7 +39,19 @@ moveStone(Source, Direction, Destination) :-
       true
    ),
    Stone = stone(_,Color,Type),
-   assert(usedStone(stone(Destination,Color,Type))).
+   assert(usedStone(stone(Destination,Color,Type))),
+   isHitMove(Source,Destination).
+
+isHitMove(Source,Destination) :-
+   board:isFieldBetween(Source,Destination,_) ->
+      (
+         not(hitMove)->
+            assert(hitMove)
+         ;
+         true
+      )
+   ;
+   retractall(hitMove).
 
 isValidStone(Stone) :-
    usedStone(Used) ->
@@ -51,6 +64,10 @@ isValidStone(Stone) :-
       )
    ;
       isPlayerStone(Stone).
+
+isAIMove :-
+   player(Color),
+   not(turn(Color)).
 
 hasFieldStone(Field,Stone) :-
    game:stoneAt(Field,Stone) ->
@@ -91,6 +108,7 @@ isGameRunning :-
    fail.
 
 areMoreHitsPossible(Source, PossibleHits) :-
+   hitMove,
    game:createStoneList(World),
    game:stoneAt(Source,Stone),
    rulez:canHit(World, Stone, HitTree),
@@ -113,8 +131,13 @@ getStoneList(Stones) :- game:getStones(Stones).
 loadStartPos(File) :-
    not(gameRunning),
    open(File, read, Stream),
-   game:loadFile(Stream),
-   close(Stream),
+   (
+      game:loadFile(Stream) ->
+         close(Stream)
+      ;
+         close(Stream),
+         fail
+   ),
    (
       not(stonesLoaded) ->
          assert(stonesLoaded)
@@ -143,7 +166,8 @@ option(startColor, Color) :-
    assert(turn(Color)).
 
 hasPlayerWon :-
-   rulez:isGameOver(Winner) ->
+   game:createStoneList(World),
+   rulez:isGameOver(World,Winner) ->
    (
       Winner == black ->
          Message = 'schwarz hat gewonnen.'
@@ -164,6 +188,7 @@ nextTurn :-
    isGameRunning,
    (
       not(usedStone(_)) ->
+         retractall(hitMove),
          (
             hasPlayerWon
             ;
