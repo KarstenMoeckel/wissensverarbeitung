@@ -11,6 +11,8 @@
      player/2, %player(StartPosition,Color)
      performMove/2, %call:+Source, +Destination
      move/3, % call: +SourceField, + Direction, - DestinationField
+     move/4, % call: +SourceField, +World + Direction, - DestinationField
+     
      stoneAt/2 %call: +SourceField, -Stone
      ]).
      
@@ -23,13 +25,16 @@ player(bottom,white).
 :- dynamic stonesUpdated/0.
 
 :- dynamic stone/3.
-stone(field(2,3),black,normal).
+%stone(field(2,3),black,normal).
 stone(field(3,4),black,normal).
 stone(field(4,5),white,normal).
 stone(field(4,3),white,normal).
-stone(field(6,7),white,normal).
-stone(field(8,1),black,king).
-stone(field(2,7),white,king).
+stone(field(6,5),white,normal).
+%add by Tristan
+%stone(field(6,5),white,normal).
+
+%stone(field(8,1),black,king).
+%stone(field(2,7),white,king).
 
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
 
@@ -41,6 +46,20 @@ move(Source,Direction,Destination) :-
    stone(Source,Color,Type),
    createStoneList(World),
    rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
+
+
+%Author: Karsten Moeckel and Christian Schuett
+%Date: 6.1.2016
+
+move(Source,World,Direction,Destination) :-
+   %stone(Source,Color,Type),
+   member(Item,World),
+   (
+      stone(Source,Color,Type) = Item
+   ),
+   
+   rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
+
 
 performMove(Source,Destination) :-
    stone(Source,Color,Type),
@@ -101,17 +120,7 @@ loadFile(Stream) :-
       get_char(Stream, Char),
       not(processChar(Char)),
    !,
-   (
-      Char == end_of_file ->
-         (
-            not(stonesUpdated)->
-               assertz(stonesUpdated)
-            ;
-               true
-         )
-      ;
-         fail
-   ).
+   (not(stonesUpdated)-> assertz(stonesUpdated); true).
    
 processChar(end_of_file) :- !, fail.
 processChar('_') :- %empty field

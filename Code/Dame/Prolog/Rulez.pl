@@ -6,6 +6,7 @@
      isMoveValid/4, %call: +World, +Stone, +Direction, -Destination
      canTransformIntoKing/1,
      canHit/3, %call:+World,+Hitter, -HitTree
+     canHit/4, % call:
      isEnemy/2, %call: +Player, -Enemy
      isGameOver/2 %call: +World, --Winner
      ]).
@@ -45,9 +46,21 @@ isEnemy(Player,Enemy) :-
    Player == white ->
       Enemy == black.
 
+
 isMoveValid(World,Stone,Direction,Destination):-
    moveDirections(Stone,Direction),
-   Stone = stone(SField,_,_),
+   (
+   		Stone = stone(SField,_,_)
+   		;
+%Autor: Karsten Moeckel and Christian Schuett
+		(member(Item,World),
+			(
+				stone(SField,_,_) = Item,
+				Stone = Item
+			)
+		)	
+	),
+
    board:hasRelation(SField,DField,Direction),
    (
          board:isFree(World,DField) ->
@@ -118,6 +131,7 @@ canMultiHit(World,Hitter,PreviousVictim,CurTree,HitTree) :-
    hasHitPossibility(World,Hitter, Neighbours,Victims),
    hasFurtherHits(World,CurTree,Hitter, PreviousVictim, Victims, HitTree).
 
+%hasFurterHits(_, CurTree, _,_,[],CurTree).
 hasFurtherHits(World, CurTree,Hitter, PrevVictim,Victims, NewTree) :-
    tree:appendTree(PrevVictim,Victim,CurTree,TmpTree),
    (

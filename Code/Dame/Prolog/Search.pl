@@ -53,3 +53,5 @@ longesChildPath([Child|Childs],LongesPathLength,LongesPath) :-
          LongesPathLength = ChildLength,
          LongesPath = ChildPath
    ).
+
+
