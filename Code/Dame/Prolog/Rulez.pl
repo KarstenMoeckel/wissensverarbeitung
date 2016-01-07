@@ -48,17 +48,7 @@ isEnemy(Player,Enemy) :-
 
 isMoveValid(World,Stone,Direction,Destination):-
    moveDirections(Stone,Direction),
-   (
-   		Stone = stone(SField,_,_)
-   		/*;
-%Autor: Karsten Moeckel and Christian Schuett
-		(member(Item,World),
-			(
-				stone(SField,_,_) = Item,
-				Stone = Item
-			)
-		)	*/
-	),
+   Stone = stone(SField,_,_),
 
    board:hasRelation(SField,DField,Direction),
    (
@@ -130,7 +120,6 @@ canMultiHit(World,Hitter,PreviousVictim,CurTree,HitTree) :-
    hasHitPossibility(World,Hitter, Neighbours,Victims),
    hasFurtherHits(World,CurTree,Hitter, PreviousVictim, Victims, HitTree).
 
-%hasFurterHits(_, CurTree, _,_,[],CurTree).
 hasFurtherHits(World, CurTree,Hitter, PrevVictim,Victims, NewTree) :-
    tree:appendTree(PrevVictim,Victim,CurTree,TmpTree),
    (

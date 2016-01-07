@@ -47,20 +47,6 @@ move(Source,Direction,Destination) :-
    createStoneList(World),
    rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
 
-
-%Author: Karsten Moeckel and Christian Schuett
-%Date: 6.1.2016
-
-move(Source,World,Direction,Destination) :-
-   %stone(Source,Color,Type),
-   member(Item,World),
-   (
-      stone(Source,Color,Type) = Item
-   ),
-
-   rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
-
-
 performMove(Source,Destination) :-
    stone(Source,Color,Type),
    retract(stone(Source,Color,Type)),
