@@ -12,10 +12,10 @@
      performMove/2, %call:+Source, +Destination
      move/3, % call: +SourceField, + Direction, - DestinationField
      move/4, % call: +SourceField, +World + Direction, - DestinationField
-     
+
      stoneAt/2 %call: +SourceField, -Stone
      ]).
-     
+
 :- use_module(board).
 :- use_module(rulez).
 
@@ -57,7 +57,7 @@ move(Source,World,Direction,Destination) :-
    (
       stone(Source,Color,Type) = Item
    ),
-   
+
    rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
 
 
@@ -120,8 +120,18 @@ loadFile(Stream) :-
       get_char(Stream, Char),
       not(processChar(Char)),
    !,
-   (not(stonesUpdated)-> assertz(stonesUpdated); true).
-   
+   (
+      Char == end_of_file ->
+          (
+             not(stonesUpdated) ->
+                assert(stonesUpdated)
+            ;
+            true
+          )
+     ;
+        fail.
+   ).
+
 processChar(end_of_file) :- !, fail.
 processChar('_') :- %empty field
    incrementField(col).

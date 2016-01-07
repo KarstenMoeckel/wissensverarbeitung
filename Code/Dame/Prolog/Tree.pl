@@ -3,13 +3,16 @@
 
 :- module(tree,[
      appendTree/4, %call: ParentData, NodeData, Tree, NewTree
-     isLeaf/1
+     isLeaf/1,
+     nodeData/2
      ]).
+
+nodeData(Node,Data):- Node = t(Data,_).
 
 isLeaf(Tree) :-
    nonvar(Tree),
    Tree = t(_,[]).
-   
+
 appendTree(Parent,Data,Tree,NewTree):-
    var(Parent),
    var(Tree),

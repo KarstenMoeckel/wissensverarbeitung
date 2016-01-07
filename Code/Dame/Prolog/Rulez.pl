@@ -6,7 +6,6 @@
      isMoveValid/4, %call: +World, +Stone, +Direction, -Destination
      canTransformIntoKing/1,
      canHit/3, %call:+World,+Hitter, -HitTree
-     canHit/4, % call:
      isEnemy/2, %call: +Player, -Enemy
      isGameOver/2 %call: +World, --Winner
      ]).
@@ -44,21 +43,21 @@ isEnemy(Player,Enemy) :-
       Enemy = white
    ;
    Player == white ->
-      Enemy == black.
+      Enemy = black.
 
 
 isMoveValid(World,Stone,Direction,Destination):-
    moveDirections(Stone,Direction),
    (
    		Stone = stone(SField,_,_)
-   		;
+   		/*;
 %Autor: Karsten Moeckel and Christian Schuett
 		(member(Item,World),
 			(
 				stone(SField,_,_) = Item,
 				Stone = Item
 			)
-		)	
+		)	*/
 	),
 
    board:hasRelation(SField,DField,Direction),
@@ -84,7 +83,7 @@ canTransformIntoKing(stone(field(Row,_),Color,normal)) :-
          Row == 1
    ).
 
-     
+
 %call: +Stone, -Direction
 moveDirections(stone(field(Row,Col),_,king), Direction):-
       Row \==8,
@@ -160,7 +159,7 @@ hasHitPossibility(World,Hitter, [[Victim,Relation]|Neighbours],Victims) :-
       ;
          Victims = FoundVictims
    ).
-      
+
 %call: +World, +Hitter, +Victim, +Relation
 %Relation: <Victim> is <Relation> of <Hitter>
 canHit(World, Hitter, stone(VField,VColor,_), Relation) :-

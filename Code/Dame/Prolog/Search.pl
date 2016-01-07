@@ -3,9 +3,10 @@
 
 :- module(search,[
       membersOfLevel/3, %call: +Tree, +Level, -Members
-      longesPath/3 %call: +Tree, --PathLength, --Path
+      longesPath/3 %call: +Tree, --PathLength, --Path,
+      allLeafs/2
       ]).
-      
+
 membersOfLevel(Tree,Level,Members) :-
       Level == 1 ->
          Tree = t(Data,_),
@@ -53,5 +54,3 @@ longesChildPath([Child|Childs],LongesPathLength,LongesPath) :-
          LongesPathLength = ChildLength,
          LongesPath = ChildPath
    ).
-
-
