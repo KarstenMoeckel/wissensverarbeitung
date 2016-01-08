@@ -3,7 +3,8 @@
 
 :- module(search,[
       membersOfLevel/3, %call: +Tree, +Level, -Members
-      longesPath/3 %call: +Tree, --PathLength, --Path,
+      longesPath/3, %call: +Tree, --PathLength, --Path,
+      childData/2
       ]).
 
 membersOfLevel(Tree,Level,Members) :-

@@ -11,7 +11,7 @@
      player/2, %player(StartPosition,Color)
      performMove/2, %call:+Source, +Destination
      move/3, % call: +SourceField, + Direction, - DestinationField
-     move/4, % call: +SourceField, +World + Direction, - DestinationField
+     %%move/4, % call: +SourceField, +World + Direction, - DestinationField
 
      stoneAt/2 %call: +SourceField, -Stone
      ]).
@@ -26,15 +26,20 @@ player(bottom,white).
 
 :- dynamic stone/3.
 %stone(field(2,3),black,normal).
-stone(field(3,4),black,normal).
-stone(field(4,5),white,normal).
-stone(field(4,3),white,normal).
-stone(field(6,5),white,normal).
+%stone(field(3,4),black,normal).
+%stone(field(4,5),white,normal).
+%stone(field(4,3),white,normal).
+%stone(field(6,5),white,normal).
 %add by Tristan
 %stone(field(6,5),white,normal).
 
 %stone(field(8,1),black,king).
 %stone(field(2,7),white,king).
+
+stone(field(1,2),black,normal).
+
+stone(field(8,7),white,normal).
+
 
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
 
@@ -115,7 +120,7 @@ loadFile(Stream) :-
             true
           )
      ;
-        fail.
+        fail
    ).
 
 processChar(end_of_file) :- !, fail.

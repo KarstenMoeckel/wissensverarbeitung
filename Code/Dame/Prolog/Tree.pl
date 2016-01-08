@@ -4,7 +4,8 @@
 :- module(tree,[
      appendTree/4, %call: ParentData, NodeData, Tree, NewTree
      isLeaf/1,
-     nodeData/2
+     nodeData/2,
+     replaceSubTree/4
      ]).
 
 nodeData(Node,Data):- Node = t(Data,_).
@@ -36,3 +37,21 @@ checkSubTrees(Parent,Data,[Tree|SubTrees],NewSubTrees) :-
    ;
       checkSubTrees(Parent,Data, SubTrees,NewTree),
       NewSubTrees = [Tree|NewTree].
+
+replaceSubTree(OldData,NewNode, Tree, NewTree) :-
+    Tree = t(Data, Childs),
+    (
+       Data == OldData ->
+           NewTree = NewNode
+        ;
+            replaceChilds(OldData,NewNode,Childs,NewChilds),
+            NewTree = t(Data,NewChilds)
+    ).
+
+replaceChilds(_,_,[],_) :- fail.
+replaceChilds(OldData, NewNode,[TestChild|Childs],NewSubTrees) :-
+    replaceSubTree(OldData, NewNode, TestChild, NewChilds) ->
+        NewSubTrees = [NewChilds | Childs]
+    ;
+        replaceChilds(OldData,NewNode,Childs,NewChilds),
+        NewSubTrees = [TestChild|NewChilds].

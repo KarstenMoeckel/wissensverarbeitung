@@ -14,7 +14,7 @@
 :- dynamic moves/2.
 
 appendSearchTree(Tree, NewTree):- %TreeData: World,CurPlayer,Value, [MoveCalls]
-    tree:nodeData(Tree,node(World,Player,_,_)),
+    tree:nodeData(Tree,node(World,Player,'n/a',_)),
 
     rulez:isEnemy(Player, Enemy),
     removeEnemyStones(World, Player, EnemyStones),
@@ -24,7 +24,7 @@ appendSearchTree(Tree, NewTree):- %TreeData: World,CurPlayer,Value, [MoveCalls]
 appendPossiblitiesToTree(Tree,[],_,NewTree) :- Tree = NewTree.
 appendPossiblitiesToTree(Tree,[moves(Calls,World)|Moves], Player,NewTree) :-
     tree:nodeData(Tree,Data),
-    tree:appendTree(Data,node(World,Player,_,Calls),Tree,TmpTree),
+    tree:appendTree(Data,node(World,Player,'n/a',Calls),Tree,TmpTree),
     appendPossiblitiesToTree(TmpTree,Moves,Player,NewTree).
 
 checkMoveStonePossibility(World,Stone,Call,NewWorld):-
