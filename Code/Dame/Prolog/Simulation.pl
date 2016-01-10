@@ -116,4 +116,5 @@ simulateMove(World, Stone,Destination,NewWorld, Call) :-
        ;
           NewWorld = Tmp2World
     ),
-    Call =.. [performMove,Source,Destination].
+    Move =.. [performMove,Source,Destination],
+    Call = [Move].

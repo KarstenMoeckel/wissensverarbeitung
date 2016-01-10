@@ -3,24 +3,39 @@
 
 :- module(search,[
       membersOfLevel/3, %call: +Tree, +Level, -Members
+      nodesOfLevel/3,
       longesPath/3, %call: +Tree, --PathLength, --Path,
       childData/2
       ]).
 
-membersOfLevel(Tree,Level,Members) :-
-      Level == 1 ->
-         Tree = t(Data,_),
-         Members = [Data]
-   ;
-      membersOfLevel(Tree,Level,1,Members).
+nodesOfLevel(Tree,WantedLevel,Nodes) :-
+    nodesOfLevel(Tree,WantedLevel,0,Nodes).
+
+nodesOfLevel(Tree,WantedLevel,CurLevel,Nodes) :-
+    Tree = t(_,Childs),
+    NextLevel is CurLevel +1,
+    (
+          WantedLevel == NextLevel ->
+             Nodes = Childs
+       ;
+          nodesOfChilds(Childs,WantedLevel,NextLevel,Nodes)
+    ).
+
+nodesOfChilds([],_,_,[]).
+nodesOfChilds([Child| Childs], WantedLevel, NextLevel,Nodes) :-
+    nodesOfLevel(Child, WantedLevel,NextLevel,FoundData),
+    nodesOfChilds(Childs,WantedLevel,NextLevel,FoundData2),
+    append(FoundData,FoundData2,Nodes).
+
+membersOfLevel(Tree,Level,Members) :- membersOfLevel(Tree,Level,0,Members).
 
 membersOfLevel(Tree,WantedLevel,CurLevel,Members) :-
    Tree = t(_,Childs),
+   NextLevel is CurLevel + 1,
    (
-         WantedLevel =:= CurLevel + 1 ->
+         WantedLevel == NextLevel ->
             childData(Childs,Members)
       ;
-         NextLevel is CurLevel + 1,
          membersOfChilds(Childs,WantedLevel,NextLevel,Members)
    ).
 
