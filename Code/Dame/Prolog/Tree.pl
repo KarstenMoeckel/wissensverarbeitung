@@ -6,19 +6,12 @@
      isLeaf/1,
      nodeData/2,
      replaceSubTree/4,
-     subTree/3
+     subTree/3,
+     nodeChildren/2
      ]).
 
 nodeData(Node,Data):- Node = t(Data,_).
-
-turnOfNode(Node, Turn) :-
-    nodeData(Node, node(_, Turn, _, _)).
-
-valueOfNode(Node, Value) :-
-    nodeData(Node, node(_, _, Value, _)).
-
-callsOfNode(Node, Calls) :-
-    nodeData(Node, node(_, _, _, Calls)).
+nodeChildren(Node, Children):- Node = t(_, Children).
 
 isLeaf(Tree) :-
    nonvar(Tree),

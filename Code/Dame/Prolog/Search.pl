@@ -8,7 +8,12 @@
       childData/2
       ]).
 
+:- use_module(tree).
+
 nodesOfLevel(Tree,WantedLevel,Nodes) :-
+    WantedLevel == 1 ->
+        Nodes = [Tree]
+    ;
     nodesOfLevel(Tree,WantedLevel,0,Nodes).
 
 nodesOfLevel(Tree,WantedLevel,CurLevel,Nodes) :-
@@ -27,7 +32,12 @@ nodesOfChilds([Child| Childs], WantedLevel, NextLevel,Nodes) :-
     nodesOfChilds(Childs,WantedLevel,NextLevel,FoundData2),
     append(FoundData,FoundData2,Nodes).
 
-membersOfLevel(Tree,Level,Members) :- membersOfLevel(Tree,Level,0,Members).
+membersOfLevel(Tree,Level,Members) :-
+    Level == 1->
+        nodeData(Tree, Data),
+        Members = [Data]
+    ;
+    membersOfLevel(Tree,Level,1,Members).
 
 membersOfLevel(Tree,WantedLevel,CurLevel,Members) :-
    Tree = t(_,Childs),
