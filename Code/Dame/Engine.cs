@@ -11,6 +11,7 @@ namespace Dame
     public partial class Engine: IDisposable, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler GameOver;
 
         private Thread historyThread;
         private Thread stoneThread;
@@ -99,7 +100,10 @@ namespace Dame
 
         private void doAIMove()
         {
-            //TODO: add AI-Call
+            if (!PlQuery.PlCall("aiNextMove"))
+                return;
+            while (PlQuery.PlCall("performAIMove"))
+                Thread.Sleep(1000);
         }
 
         private void doHumanMove()
@@ -136,6 +140,7 @@ namespace Dame
                     doHumanMove();
                 StartNextTurn();
             }
+            GameOver?.Invoke(this, new EventArgs());
         }
 
         private void CheckHistory_Thread()
@@ -232,6 +237,7 @@ namespace Dame
                     running = false;
                     historyThread.Join();
                     stoneThread.Join();
+                    gameThread?.Abort();
                 }
 
                 // TODO: nicht verwaltete Ressourcen (nicht verwaltete Objekte) freigeben und Finalizer weiter unten überschreiben.
