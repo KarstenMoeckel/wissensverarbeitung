@@ -1,4 +1,4 @@
-% Autor: Christian Schuett
+﻿% Autor: Christian Schuett
 % Datum: 30.12.2015
 
 :- module(ai, [
@@ -36,8 +36,12 @@ buildInitialSearchTree(Player) :-
     .
 
 updateTreeDepth(Depth):-
-	retractall(treeDepth(_)),
-	assertz(treeDepth(Depth)).
+        retractall(treeDepth(_)),
+        assertz(treeDepth(Depth)).
+
+updateSearchTree(Calls) :-
+   updateRoot(Calls),
+   appendNewLeaves,
 
 performAiMove([]).
 performAiMove([ Call | RestCalls]) :-

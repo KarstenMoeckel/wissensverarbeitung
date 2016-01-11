@@ -1,7 +1,8 @@
-% Autor: Christian Schuett, Karsten Möckel
+﻿% Autor: Christian Schuett, Karsten Möckel
 % Datum: 11.01.2016
 :- module(searchTree, [
-    updateSearchTree/1,
+    updateRoot/1,
+    appendNewLeaves/0,
     writeSearchTreeToFacts/1,
     initialSearchTree/2
     ]).
@@ -37,21 +38,12 @@ writeSearchTreeToFacts(Tree) :-
     retractall(ai:searchTree(_)),
     assertz(ai:searchTree(Tree)).
 
-%TODO: Calls als parameter
-updateSearchTree(Calls):-
-    ai:searchTree(Before),
-    updateRoot(Calls),
-    appendNewLeaves,
-    ai:searchTree(After),
-    writeln(Before),
-    writeln(After).
-
 appendNewLeaves():-
     ai:searchTree(OldTree),
     ai:treeDepth(Depth),
     %because the tree shrinked after the root was extirpated
     TargetDepth = Depth - 1,
-    search:membersOfLevelTree(OldTree, TargetDepth, Members),
+    search:membersOfLevel(OldTree, TargetDepth, Members),
     % 2 because we append just one level
     maplist(initialSearchTree(2), Members).
 

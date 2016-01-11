@@ -1,4 +1,4 @@
-% Autor: Robert Maas
+﻿% Autor: Robert Maas
 % Datum: 04.01.2016
 
 :- module(main, [
@@ -10,7 +10,8 @@
    option/2,
    nextTurn/0,
    startGame/0,
-   isAIMove/0
+   isAIMove/0,
+   aiNextMove/0
    ]).
 
 :- use_module(game).
@@ -23,6 +24,8 @@
 :- dynamic usedStone/1.
 :- dynamic stonesLoaded/0.
 :- dynamic hitMove/0.
+:- dynamic moveList/1.
+:- dynamic aiMove/1.
 
 getLog(Logs) :- game:getLogs(Logs).
 
@@ -78,7 +81,9 @@ hasFieldStone(Field,Stone) :-
 
 doMove(Source, Direction, Destination) :-
    game:move(Source,Direction,Destination) ->
-      game:performMove(Source,Destination)
+      game:performMove(Source,Destination),
+      Move =.. [performMove,Source,Destination],
+      addMove(Move)
    ;
    game:logMessage('Der Zug ist ungültig.'),
    fail.
@@ -189,6 +194,9 @@ nextTurn :-
    (
       not(usedStone(_)) ->
          retractall(hitMove),
+         moveList(List),
+         ai:updateSearchTree(List),
+         retractall(moveList(_)),
          (
             hasPlayerWon
             ;
@@ -203,12 +211,48 @@ startGame :-
    (
       stonesLoaded,
       turn(_),
-      player(_),
+      player(Player),
       not(gameRunning)
    ) ->
       retract(stonesLoaded),
       assert(gameRunning),
+      game:logMessage('Starte Spiel.'),
+      ai:buildInitialSearchTree(Player),
       game:logMessage('Das Spiel wurde gestartet.')
    ;
-      game:logMessage('Fehler beim Starten vom Spiel.'),
+      game:logMessage('Das Spiel kann nicht geladen werde.'),
       fail.
+      
+aiNextMove :-
+   ai:nextAiMove(Calls),
+   (
+      not(Calls == []) ->
+         assert(aiMove(Calls))
+      ;
+         game:logMessage('Die KI kann keinen Zug machen.'),
+         fail
+   ).
+
+addMove(Move) :-
+   moveList(OldMoves)->
+      retractall(moveList(_)),
+      addLast(Move,OldMoves,NewMoves),
+      assert(moveList(NewMoves))
+   ;
+      assert(moveList([Move])).
+
+addLast(X,[],[X]).
+addLast(X,[Y|Tail],[Y|Tail1]):-
+   addLast(X,Tail,Tail1).
+   
+performAIMove :-
+   aiMove([Call | RestCalls]),
+   call(Call),
+   addMove(Call),
+   (
+      not(RestCalls == []) ->
+         retractall(aiMove(_)),
+         assert(aiMove(RestCalls))
+      ;
+      true
+   ).
