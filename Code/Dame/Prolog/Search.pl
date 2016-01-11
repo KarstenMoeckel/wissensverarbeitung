@@ -14,7 +14,7 @@ nodesOfLevel(Tree,WantedLevel,Nodes) :-
     WantedLevel == 1 ->
         Nodes = [Tree]
     ;
-    nodesOfLevel(Tree,WantedLevel,0,Nodes).
+    nodesOfLevel(Tree,WantedLevel,1,Nodes).
 
 nodesOfLevel(Tree,WantedLevel,CurLevel,Nodes) :-
     Tree = t(_,Childs),

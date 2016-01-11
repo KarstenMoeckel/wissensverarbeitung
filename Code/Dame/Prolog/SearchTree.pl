@@ -31,7 +31,7 @@ initialSearchTree(Depth, CurrentNode) :-
     ai:treeDepth(MaxLevel),
     NewDepth is Depth - 1,
     Level is MaxLevel - NewDepth + 1,
-    search:membersOfLevel(NewTree, Level, Children),
+    search:nodesOfLevel(NewTree, Level, Children),
     maplist(initialSearchTree(NewDepth), Children).
 
 writeSearchTreeToFacts(Tree) :-
