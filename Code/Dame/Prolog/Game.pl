@@ -36,10 +36,35 @@ player(bottom,white).
 %stone(field(8,1),black,king).
 %stone(field(2,7),white,king).
 
+%stone(field(1,2),black,normal).
+
+%stone(field(8,7),white,normal).
+
 stone(field(1,2),black,normal).
+stone(field(1,4),black,normal).
+stone(field(1,6),black,normal).
+stone(field(1,8),black,normal).
+stone(field(2,1),black,normal).
+stone(field(2,3),black,normal).
+stone(field(2,5),black,normal).
+stone(field(2,7),black,normal).
+stone(field(3,2),black,normal).
+stone(field(3,4),black,normal).
+stone(field(3,6),black,normal).
+stone(field(3,8),black,normal).
 
+stone(field(6,1),white,normal).
+stone(field(6,3),white,normal).
+stone(field(6,5),white,normal).
+stone(field(6,7),white,normal).
+stone(field(7,2),white,normal).
+stone(field(7,4),white,normal).
+stone(field(7,6),white,normal).
+stone(field(7,8),white,normal).
+stone(field(8,1),white,normal).
+stone(field(8,3),white,normal).
+stone(field(8,5),white,normal).
 stone(field(8,7),white,normal).
-
 
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
 

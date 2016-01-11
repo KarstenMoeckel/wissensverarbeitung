@@ -46,8 +46,8 @@ performAiMove([ Call | RestCalls]) :-
 
 nextAiMove(Calls):-
     searchTree(Tree),
-    Tree = t( node(_, Color, _, _), Children),
-    minimax:isStrategy(Color,Strategy),
+    tree:nodeChildren(Tree, Children),
+    minimax:isStrategy(Strategy),
     %Strategy, BestChild, [Child | RestChilds], ReturnChild
     minimax:miniMax(Strategy, _, Children, BestChild),
     %minimax:bestChildOf(Children, _, Strategy, BestChild),
