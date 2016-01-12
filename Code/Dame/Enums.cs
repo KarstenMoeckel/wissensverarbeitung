@@ -14,9 +14,9 @@
 
     public enum Difficulty
     {
-        Easy = 3,
-        Medium = 5,
-        Hard = 10,
-        Extreme = 15
+        Easy = 2,
+        Medium = 3,
+        Hard = 4,
+        Extreme = 5
     }
 }

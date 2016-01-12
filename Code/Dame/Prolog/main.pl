@@ -11,7 +11,8 @@
    nextTurn/0,
    startGame/0,
    isAIMove/0,
-   aiNextMove/0
+   aiNextMove/0,
+   performAiMove/0
    ]).
 
 :- use_module(game).
@@ -245,7 +246,7 @@ addLast(X,[],[X]).
 addLast(X,[Y|Tail],[Y|Tail1]):-
    addLast(X,Tail,Tail1).
    
-performAIMove :-
+performAiMove :-
    aiMove([Call | RestCalls]),
    call(Call),
    addMove(Call),
