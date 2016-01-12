@@ -43,11 +43,17 @@ appendNewLeaves():-
     ai:treeDepth(Depth),
     %because the tree shrinked after the root was extirpated
     TargetDepth = Depth - 1,
-    search:nodesOfLevel(OldTree, TargetDepth, Members),
+    search:membersOfLevel(OldTree, TargetDepth, Members),
     % 2 because we append just one level
     maplist(initialSearchTree(2), Members).
 
-updateRoot(Calls) :-
+updateRoot(DoneCalls) :-
+    ai:searchTree(OldTree),
+    %game:createStoneList(CurrentWorld),
+    cutRoot(DoneCalls, OldTree, NewTree),
+    writeSearchTreeToFacts(NewTree).
+
+cutRoot(Calls) :-
     ai:searchTree(Tree),
     subTree(node(_,_,_,Calls), Tree, SubTree),
     writeSearchTreeToFacts(SubTree).

@@ -26,7 +26,13 @@ namespace Dame
             InitializeComponent();
             Engine = new Engine();
             Engine.PropertyChanged += Engine_PropertyChanged;
+            Engine.GameOver += Engine_GameOver;
             possibleHits = new List<Button>();
+        }
+
+        private void Engine_GameOver(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(new Action((() => btn_Start.IsEnabled = true)));
         }
 
         private void Engine_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -82,7 +88,7 @@ namespace Dame
 
         private Button GetButtonByCell(IEnumerable<Button> list, Field field)
         {
-            return list.FirstOrDefault((b) => Grid.GetColumn(b) == field.Column && Grid.GetRow(b) == field.Row);
+            return list.First((b) => Grid.GetColumn(b) == field.Column && Grid.GetRow(b) == field.Row);
         }
 
         private void updateStones()
@@ -120,7 +126,11 @@ namespace Dame
         
         private void btn_Start_Click(object sender, RoutedEventArgs e)
         {
-            Engine.Start();
+            if (Engine.Start())
+            {
+                Button b = (Button)sender;
+                b.IsEnabled = false;
+            }
         }
         
         private Uri GetStoneImageUri(StoneColor color, StoneType type)

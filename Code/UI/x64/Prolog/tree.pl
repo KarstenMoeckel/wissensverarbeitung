@@ -1,67 +1,75 @@
-﻿%author Karsten Möckel
-%date 07.12.2015
+% Autor: Robert Maas
+% Datum: 19.12.2015
 
-% Return opposite player of the color.
-getEnemy(Color, Enemy) :-
-   Color == white ->
-      Enemy = black
+:- module(tree,[
+     appendTree/4, %call: ParentData, NodeData, Tree, NewTree
+     isLeaf/1,
+     nodeData/2,
+     replaceSubTree/4,
+     subTree/3,
+     nodeChildren/2
+     ]).
+
+nodeData(Node,Data):- Node = t(Data,_).
+nodeChildren(Node, Children):- Node = t(_, Children).
+
+isLeaf(Tree) :-
+   nonvar(Tree),
+   Tree = t(_,[]).
+
+appendTree(Parent,Data,Tree,NewTree):-
+   var(Parent),
+   var(Tree),
+   NewTree = t(Data,[]).
+appendTree(Parent,Data,Tree,NewTree) :-
+   nonvar(Parent),
+   nonvar(Tree),
+   Tree = t(Parent,SubTrees)->
+      NewTree = t(Parent,[t(Data,[])|SubTrees]).
+appendTree(Parent,Data,Tree,NewTree) :-
+   nonvar(Parent),
+   nonvar(Tree),
+   Tree = t(CurNodeData,SubTrees),
+   CurNodeData \== Parent ->
+      checkSubTrees(Parent,Data,SubTrees,NewSubTrees),
+      NewTree = t(CurNodeData,NewSubTrees).
+
+checkSubTrees(Parent,Data,[Tree|SubTrees],NewSubTrees) :-
+      appendTree(Parent,Data,Tree,NewTree) ->
+         NewSubTrees = [NewTree|SubTrees]
    ;
-   Color == black ->
-      Enemy = white.
+      checkSubTrees(Parent,Data, SubTrees,NewTree),
+      NewSubTrees = [Tree|NewTree].
 
-% Player: current player.
-% Depth: Depth of the search.
-createTree(Player, Depth) :-
-    createStoneList(World),
-    assertz(node(_, 0, World, Player, [])),
-    depthSearch(Depth, World, Player, node(_, 0, World, Player, [])).
-
-% Check if depth is reached.
-%
-% For each stone of the current Player
-%     call depthSearch_1
-depthSearch(Depth, World, Player, ParentNode) :-
-    writeln('Tiefensuche, Tiefe: ' + Depth),
-    Depth >= 0,
-    NewDepth is Depth - 1,
-    %% subtract only the players stones
-    getEnemy(Player, Enemy),
-    subtract(World, [stone(_,Enemy,_)], PlayerStones),
-    maplist(depthSearch(World, Player, NewDepth, ParentNode), PlayerStones).
-
-% For each Possible Move
-%     do the move and call depthSearch with the new list of stones.
-%
-% For each Possible Attack
-%     do the attack and call depthSearch with the new list of stones.
-depthSearch(World, Player, Depth, ParentNode, Stone) :-
-    member(Stone, World),
-    writeln(Stone),
+replaceSubTree(OldData,NewNode, Tree, NewTree) :-
+    Tree = t(Data, Childs),
     (
-        findall(X, moveDirections(Stone, X), Relations),
-        maplist(depthSearch(World, Player, Depth, ParentNode, Stone), Relations)
+       Data == OldData ->
+           NewTree = NewNode
+        ;
+            replaceChilds(OldData,NewNode,Childs,NewChilds),
+            NewTree = t(Data,NewChilds)
     ).
 
-depthSearch(World, Player, Depth, ParentNode, Stone, Relation) :-
-    writeln('stage 3: ' + Relation),
-    validMove(Stone, Relation, Player, World),
-    doMove(Stone, World, Relation, NewList),
-    assertz(node(ParentNode, 0, World, Player, [])),
-    writeln('Move ' + Relation),
-    getEnemy(Player, Enemy).
-    %depthSearch(Depth, World, Enemy, node(ParentNode, 0, NewList, Player, [])).
+replaceChilds(_,_,[],_) :- fail.
+replaceChilds(OldData, NewNode,[TestChild|Childs],NewSubTrees) :-
+    replaceSubTree(OldData, NewNode, TestChild, NewChilds) ->
+        NewSubTrees = [NewChilds | Childs]
+    ;
+        replaceChilds(OldData,NewNode,Childs,NewChilds),
+        NewSubTrees = [TestChild|NewChilds].
 
-%% subtract removes occurence of stone from StoneList and writes the rest of
-%% the list into NewList.
-%% Add new Stone to NewList.
-doMove(Stone, StoneList, Direction, NewList) :-
-    Stone = stone(Field,Color,Type),
-    subtract(StoneList, [Stone], TempList),
-    hasRelation(Field,Field2,Direction),
-    append(TempList, [stone(Field2, Color, Type)], NewList).
+subTree(DataTemplate,Tree,SubTree) :-
+    Tree = t(Data, Childs),
+    (
+        Data = DataTemplate ->
+            SubTree = Tree
+        ;
+            findSubTrees(DataTemplate,Childs, SubTree)
+    ).
 
-addChildNode(Node, NewChildnode) :-
-   Node = node(Parent, Value,World,Player,ChildNodes),
-   retract(Node),
-   append(ChildNodes, [NewChildnode], NewList),
-   assertz(node(Parent, Value, World, Player, NewList)).
+findSubTree(_,[],_) :- fail.
+findSubTree(DataTemplate, [ Child | Childs], SubTrees) :-
+    subTree(DataTemplate,Child,SubTrees)
+    ;
+    findSubTree(DataTemplate,Childs,SubTrees).
