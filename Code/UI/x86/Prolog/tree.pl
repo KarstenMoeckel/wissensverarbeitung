@@ -65,7 +65,7 @@ subTree(DataTemplate,Tree,SubTree) :-
         Data = DataTemplate ->
             SubTree = Tree
         ;
-            findSubTrees(DataTemplate,Childs, SubTree)
+            findSubTree(DataTemplate,Childs, SubTree)
     ).
 
 findSubTree(_,[],_) :- fail.

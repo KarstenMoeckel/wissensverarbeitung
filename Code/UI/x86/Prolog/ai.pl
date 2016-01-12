@@ -32,8 +32,8 @@ buildInitialSearchTree(Player) :-
     treeDepth(Depth),
     searchTree:createRootNode(Player, Root),
     searchTree:writeSearchTreeToFacts(Root),
-    searchTree:initialSearchTree(Depth, Root)
-    .
+    searchTree:initialSearchTree(Depth, Root),
+    minimax:evaluateTree(Depth).
 
 updateTreeDepth(Depth):-
     retractall(treeDepth(_)),
@@ -43,6 +43,8 @@ updateTreeDepth(Depth):-
 updateSearchTree(Calls) :-
    updateRoot(Calls),
    appendNewLeaves,
+   treeDepth(Depth),
+   minimax:evaluateTree(Depth).
 
 performAiMove([]).
 performAiMove([ Call | RestCalls]) :-
@@ -51,8 +53,9 @@ performAiMove([ Call | RestCalls]) :-
 
 nextAiMove(Calls):-
     searchTree(Tree),
+    searchNode:turnOfNode(Tree, Color),
     tree:nodeChildren(Tree, Children),
-    minimax:isStrategy(Strategy),
+    minimax:isStrategy(Color, Strategy),
     %Strategy, BestChild, [Child | RestChilds], ReturnChild
     minimax:miniMax(Strategy, _, Children, BestChild),
     %minimax:bestChildOf(Children, _, Strategy, BestChild),

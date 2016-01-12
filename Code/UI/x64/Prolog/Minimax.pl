@@ -1,6 +1,7 @@
 :- module(minimax, [
     isStrategy/2,
-    miniMax/4
+    miniMax/4,
+    evaluateTree/1
 ]).
 
 :- use_module(game).
