@@ -1,10 +1,9 @@
 ﻿% Autor: Christian Schuett, Karsten Möckel
 % Datum: 11.01.2016
 :- module(searchTree, [
-    updateRoot/1,
-    appendNewLeaves/0,
-    writeSearchTreeToFacts/1,
-    initialSearchTree/2
+    updateRoot/3,
+    appendNewLevels/4,
+    initialSearchTree/3
     ]).
 
 :- use_module(game).
@@ -14,44 +13,65 @@
 :- use_module(simulation).
 :- use_module(ai).
 
-initialSearchTree(1, _).
-initialSearchTree(Depth, CurrentNode) :-
-    ai:searchTree(Tree),
-    nodeData(CurrentNode, OldData),
-    OldData = node(World, _, _, _),
-    (
-        rulez:isGameOver(World, _) ->
-            initialSearchTree(1, _) %TODO: change to cancel precessing
-            ;
-            true
-    ),
-    simulation:appendSearchTree(CurrentNode, NewNode),
-    replaceSubTree(OldData, NewNode, Tree, NewTree),
-    writeSearchTreeToFacts(NewTree),
-    ai:treeDepth(MaxLevel),
-    NewDepth is Depth - 1,
-    Level is MaxLevel - NewDepth + 1,
-    search:nodesOfLevel(NewTree, Level, Children),
-    maplist(initialSearchTree(NewDepth), Children).
+:- dynamic childNodes/2.
 
-writeSearchTreeToFacts(Tree) :-
-    retractall(ai:searchTree(_)),
-    assertz(ai:searchTree(Tree)).
-
-appendNewLeaves():-
-    ai:searchTree(OldTree),
-    ai:treeDepth(Depth),
-    %because the tree shrinked after the root was extirpated
-    TargetDepth = Depth - 1,
-    search:nodesOfLevel(OldTree, TargetDepth, Members),
-    % 2 because we append just one level
-    maplist(initialSearchTree(2), Members).
-
-updateRoot(Calls) :-
-    ai:searchTree(Tree),
-    subTree(node(_,_,_,Calls), Tree, SubTree),
-    writeSearchTreeToFacts(SubTree).
-
-createRootNode(Player, RootNode) :-
+initialSearchTree(MaxDepth,StartPlayer,Tree) :-
     game:createStoneList(World),
-    tree:appendTree(_, node(World, Player, 'n/a', []), _, RootNode).
+    initialSearchTree(1,MaxDepth,World,StartPlayer,[],Tree).
+
+initialSearchTree(MaxDepth,MaxDepth,World,Player,Call,Tree):-
+    rulez:isEnemy(Player,Enemy),
+    evaluation:valueOfGame(World,Enemy,Value),
+    createTreeNode(World,Player,Value,Call,Tree),!.
+
+initialSearchTree(CurDepth,MaxDepth,World,Player,Call,Tree) :-
+    CurDepth < MaxDepth,
+    rulez:isGameOver(World,WonPlayer),
+    (
+        WonPlayer == Player ->
+            createTreeNode(World,Player,won,Call,Tree)
+        ;
+            createTreeNode(World,Player,lost,Call,Tree)
+    ),!.
+
+initialSearchTree(CurDepth,MaxDepth,World,Player,DoneCall,Tree) :-
+    CurDepth < MaxDepth,
+    not(rulez:isGameOver(World,_)),
+    NextDepth is CurDepth + 1,
+    rulez:isEnemy(Player,Enemy),
+    repeat,
+    (
+            simulation:possibleMove(World,Player,NewWorld,PossibleCall),
+            initialSearchTree(NextDepth,MaxDepth,NewWorld,Enemy,PossibleCall,Node),
+            assert(childNodes(CurDepth,Node)),
+            fail
+        ;
+            !
+    ),
+    findall(Node,childNodes(CurDepth,Node),Nodes),
+    retractall(childNodes(CurDepth,_)),
+    minimax:miniMax(Value,Nodes),
+    createTreeNode(World,Player,Value,DoneCall,TmpTree),
+    tree:appendChildNodesToRootNode(Nodes,TmpTree,Tree).
+
+appendNewLevels(MaxDepth, StartDepth, Tree, NewTree) :-
+    search:nodesOfLevel(Tree,StartDepth,Nodes),
+    createNewNodes(Nodes,StartDepth,MaxDepth,NewNodes),
+    replaceTreeNodes(Nodes,NewNodes,Tree,NewTree).
+
+replaceTreeNodes([],[],Tree,Tree).
+replaceTreeNodes([OldNode|OldNodes], [NewNode|NewNodes], Tree, NewTree) :-
+    tree:replaceSubTree(OldNode,NewNode,Tree,TmpTree),
+    replaceTreeNodes(OldNodes,NewNodes,TmpTree,NewTree).
+
+createNewNodes([],_,_,[]).
+createNewNodes([OldNode| OldNodes],StartDepth, MaxDepth, [NewNode| NewNodes]):-
+    createNewNodes(OldNodes,StartDepth,MaxDepth,NewNodes),
+    searchNode:datasOfNode(OldNode,World, Turn, _, Calls),
+    initialSearchTree(StartDepth,MaxDepth,World,Turn,Calls,NewNode).
+
+updateRoot(Calls, CurTree, NewTree) :-
+    subTree(node(_,_,_,Calls), CurTree, NewTree).
+
+createTreeNode(World,Player,Value,Call,Node):-
+    tree:appendTree(_,node(World,Player,Value,Call),_, Node).

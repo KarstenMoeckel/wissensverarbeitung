@@ -30,10 +30,9 @@ treeDepth(4).
 
 buildInitialSearchTree(Player) :-
     treeDepth(Depth),
-    searchTree:createRootNode(Player, Root),
-    searchTree:writeSearchTreeToFacts(Root),
-    searchTree:initialSearchTree(Depth, Root),
-    minimax:evaluateTree(Depth).
+    initialSearchTree(Depth,Player,Tree),
+    retractall(searchTree(_)),
+    assert(searchTree(Tree)).
 
 updateTreeDepth(Depth):-
     retractall(treeDepth(_)),
@@ -43,8 +42,6 @@ updateTreeDepth(Depth):-
 updateSearchTree(Calls) :-
    updateRoot(Calls),
    appendNewLeaves,
-   treeDepth(Depth),
-   minimax:evaluateTree(Depth).
 
 performAiMove([]).
 performAiMove([ Call | RestCalls]) :-

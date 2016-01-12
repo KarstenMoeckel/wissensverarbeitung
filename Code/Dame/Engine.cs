@@ -102,7 +102,7 @@ namespace Dame
         {
             if (!PlQuery.PlCall("aiNextMove"))
                 return;
-            while (PlQuery.PlCall("performAIMove"))
+            while (PlQuery.PlCall("performAiMove"))
                 Thread.Sleep(1000);
         }
 
@@ -193,7 +193,7 @@ namespace Dame
             IEnumerable<PlTerm> list = termV[0].ToList();
             return list.Select<PlTerm, Field>((t) => new Field(t));
         }
-        
+
         private bool StartNextTurn()
         {
             return PlQuery.PlCall("main:nextTurn");

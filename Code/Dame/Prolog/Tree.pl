@@ -7,7 +7,8 @@
      nodeData/2,
      replaceSubTree/4,
      subTree/3,
-     nodeChildren/2
+     nodeChildren/2,
+     appendChildNodesToRootNode/3
      ]).
 
 nodeData(Node,Data):- Node = t(Data,_).
@@ -16,6 +17,11 @@ nodeChildren(Node, Children):- Node = t(_, Children).
 isLeaf(Tree) :-
    nonvar(Tree),
    Tree = t(_,[]).
+
+appendChildNodesToRootNode(Childs,OldTree,NewTree):-
+    OldTree = t(Data,CurChilds),
+    append(Childs,CurChilds,NewChilds),
+    NewTree = t(Data,NewChilds).
 
 appendTree(Parent,Data,Tree,NewTree):-
    var(Parent),
