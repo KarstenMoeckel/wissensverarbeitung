@@ -11,6 +11,7 @@
 :- use_module(search).
 :- use_module(rulez).
 :- use_module(simulation).
+:- use_module(evaluation).
 :- use_module(ai).
 
 :- dynamic childNodes/2.

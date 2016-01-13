@@ -14,11 +14,7 @@ namespace Dame
         {
             try
             {
-#if X64
-                PlEngine.Initialize(new string[] { "-q", "-G10g", "-L2g", "-T5g" });
-#else
-                PlEngine.Initialize(new string[] { "-q", "-G128m", "-L128m", "-T128m" });
-#endif
+                PlEngine.Initialize(new string[] { "-q" });
             }
             catch (System.IO.FileNotFoundException)
             {
