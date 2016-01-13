@@ -100,9 +100,9 @@ namespace Dame
 
         private void doAIMove()
         {
-            if (!PlQuery.PlCall("aiNextMove"))
+            if (!PlQuery.PlCall("main:aiNextMove"))
                 return;
-            while (PlQuery.PlCall("performAiMove"))
+            while (PlQuery.PlCall("main:performAiMove"))
                 Thread.Sleep(1000);
         }
 
@@ -118,6 +118,7 @@ namespace Dame
                 {
                     while ((PossibleHits = MoreHitsPossible(destination)).Count() != 0)
                     {
+                        StoneToMove = destination;
                         while (MoveDestination == default(Field))
                             Thread.Sleep(250);
                         destination = MoveStone(destination, MoveDestination);
@@ -134,7 +135,7 @@ namespace Dame
             PlEngine.PlThreadAttachEngine();
             while(PlQuery.PlCall("main:gameRunning"))
             {
-                if(PlQuery.PlCall("isAIMove"))
+                if(PlQuery.PlCall("main:isAIMove"))
                     doAIMove();
                 else
                     doHumanMove();
@@ -182,6 +183,7 @@ namespace Dame
         public void Stop()
         {
             running = false;
+            gameThread?.Abort();
         }
 
         private IEnumerable<Field> MoreHitsPossible(Field source)
@@ -189,7 +191,7 @@ namespace Dame
             PlQuery query = new PlQuery("areMoreHitsPossible", new PlTermV(source.ToTerm(), new PlTerm("Hits")));
             PlTermV termV = query.Solutions.FirstOrDefault();
             if (termV.Size == 0)
-                return null;
+                return new List<Field>();
             IEnumerable<PlTerm> list = termV[0].ToList();
             return list.Select<PlTerm, Field>((t) => new Field(t));
         }

@@ -25,7 +25,6 @@
 :- dynamic usedStone/1.
 :- dynamic stonesLoaded/0.
 :- dynamic hitMove/0.
-:- dynamic moveList/1.
 :- dynamic aiMove/1.
 
 getLog(Logs) :- game:getLogs(Logs).
@@ -43,8 +42,12 @@ moveStone(Source, Direction, Destination) :-
       true
    ),
    Stone = stone(_,Color,Type),
-   assert(usedStone(stone(Destination,Color,Type))),
-   isHitMove(Source,Destination).
+   (
+      isHitMove(Source,Destination) ->
+         assert(usedStone(stone(Destination,Color,Type)))
+      ;
+      true
+   ).
 
 isHitMove(Source,Destination) :-
    board:isFieldBetween(Source,Destination,_) ->
@@ -55,7 +58,8 @@ isHitMove(Source,Destination) :-
          true
       )
    ;
-   retractall(hitMove).
+   retractall(hitMove),
+   fail.
 
 isValidStone(Stone) :-
    usedStone(Used) ->
@@ -82,9 +86,7 @@ hasFieldStone(Field,Stone) :-
 
 doMove(Source, Direction, Destination) :-
    game:move(Source,Direction,Destination) ->
-      game:performMove(Source,Destination),
-      Move =.. [performMove,Source,Destination],
-      addMove(Move)
+      game:performMove(Source,Destination)
    ;
    game:logMessage('Der Zug ist ungültig.'),
    fail.
@@ -232,25 +234,12 @@ aiNextMove :-
          fail
    ).
 
-addMove(Move) :-
-   moveList(OldMoves)->
-      retractall(moveList(_)),
-      addLast(Move,OldMoves,NewMoves),
-      assert(moveList(NewMoves))
-   ;
-      assert(moveList([Move])).
-
-addLast(X,[],[X]).
-addLast(X,[Y|Tail],[Y|Tail1]):-
-   addLast(X,Tail,Tail1).
-
 performAiMove :-
    aiMove([Call | RestCalls]),
+   retractall(aiMove(_)),
    call(Call),
-   addMove(Call),
    (
       not(RestCalls == []) ->
-         retractall(aiMove(_)),
          assert(aiMove(RestCalls))
       ;
       true

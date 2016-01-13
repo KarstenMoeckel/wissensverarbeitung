@@ -15,18 +15,9 @@
 :- dynamic treeDepth/1.
 :- dynamic aiPlayer/1.
 
-% TODO: remove performAiMove
-%       treeDepth(4) löschen
-%       Stabile Signaturen von Toplevelprädikaten für Aufruf -> Public
-%       Warnungen beheben
+% TODO: Warnungen beheben
 %       Code Optimieren, writeln entfernen, Leerzeilen
 %       Kommentieren
-%       Search: membersOfLevel, nodesOfLevel mit Callbacks? (Optional)
-%       initialSearchTree mit abbruch
-%       evaluation für Gewinner
-%       set für die node-eigenschaften(optional)
-
-treeDepth(4).
 
 buildSearchTree(Tree) :-
     treeDepth(Depth),
@@ -40,11 +31,6 @@ updateTreeDepth(Depth):-
 updateAIPlayer(Player):-
     retractall(aiPlayer(_)),
     assert(aiPlayer(Player)).
-
-performAiMove([]).
-performAiMove([ Call | RestCalls]) :-
-    call(Call),
-    performAiMove(RestCalls).
 
 findNodeByValue([],_,_) :- fail.
 findNodeByValue([Node|Nodes], Value,FoundNode):-

@@ -43,7 +43,7 @@ namespace Dame
                     Dispatcher.Invoke(new Action(updateStones));
                     break;
                 case nameof(Engine.StoneToMove):
-                    updateMoveStone();
+                    Dispatcher.Invoke(new Action(updateMoveStone));
                     break;
                 case nameof(Engine.PossibleHits):
                     Dispatcher.Invoke(new Action(updateHits));
@@ -93,15 +93,20 @@ namespace Dame
 
         private void updateStones()
         {
-            foreach (Stone stone in Engine.Stones)
+            foreach (Button b in gameField.Children.OfType<Button>())
             {
+                Field field = new Field(Grid.GetRow(b), Grid.GetColumn(b));
+                Stone stone = Engine.Stones.FirstOrDefault(s => s.Field == field);
+                if (stone == null)
+                {
+                    b.Content = null;
+                    continue;
+                }
                 BitmapImage image = new BitmapImage(GetStoneImageUri(stone.Color, stone.Type));
                 Image img = new Image();
                 img.Source = image;
                 img.Stretch = Stretch.Fill;
-                Field f = stone.Field;
-                Button btn = GetButtonByCell(gameField, f);
-                btn.Content = img;
+                b.Content = img;
             }
         }
 
