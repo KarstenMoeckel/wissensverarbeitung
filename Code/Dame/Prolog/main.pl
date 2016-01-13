@@ -163,7 +163,9 @@ option(playerColor, Color) :-
    game:player(_, Color),
    not(gameRunning),
    retractall(player(_)),
-   assert(player(Color)).
+   assert(player(Color)),
+   rulez:isEnemy(Color,Enemy),
+   ai:updateAIPlayer(Enemy).
 
 option(startColor, Color) :-
    game:player(_, Color),
@@ -195,8 +197,6 @@ nextTurn :-
    (
       not(usedStone(_)) ->
          retractall(hitMove),
-         moveList(List),
-         ai:updateSearchTree(List),
          retractall(moveList(_)),
          (
             hasPlayerWon
@@ -217,13 +217,11 @@ startGame :-
    ) ->
       retract(stonesLoaded),
       assert(gameRunning),
-      game:logMessage('Starte Spiel.'),
-      ai:buildInitialSearchTree(Player),
       game:logMessage('Das Spiel wurde gestartet.')
    ;
       game:logMessage('Das Spiel kann nicht geladen werde.'),
       fail.
-      
+
 aiNextMove :-
    ai:nextAiMove(Calls),
    (
@@ -245,7 +243,7 @@ addMove(Move) :-
 addLast(X,[],[X]).
 addLast(X,[Y|Tail],[Y|Tail1]):-
    addLast(X,Tail,Tail1).
-   
+
 performAiMove :-
    aiMove([Call | RestCalls]),
    call(Call),

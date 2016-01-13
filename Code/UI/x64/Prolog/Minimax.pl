@@ -1,105 +1,53 @@
 :- module(minimax, [
-    isStrategy/2,
-    miniMax/4,
-    evaluateTree/1
+    miniMax/2
 ]).
 
-:- use_module(game).
-:- use_module(search).
 :- use_module(searchNode).
-:- use_module(tree).
-:- use_module(evaluation).
-:- use_module(searchTree).
-:- use_module(ai).
+:- use_module(main).
 
 isStrategy(Color, Strategy) :-
     main:player(Color) -> Strategy = min
     ;
     Strategy = max.
 
-evaluateTree(MaxDepth) :-
-    ai:searchTree(Tree),
-    search:nodesOfLevel(Tree, MaxDepth, Leaves),
-    evaluateLeaves(Leaves, NewLeaves),
-    replaceLevel(Leaves, NewLeaves),
-    NewDepth is MaxDepth - 1,
-    miniMax(NewDepth).
-
-evaluateLeaves([], []).
-evaluateLeaves([Leaf | Leaves], ResultList) :-
-    searchNode:datasOfNode(Leaf, World, ViewColor, _, Calls),
-    evaluation:valueOfGame(World, ViewColor, NewValue),
-    NewChild = t(node(World, ViewColor, NewValue, Calls), []),
-    tree:appendTree(_,node(World, ViewColor, NewValue, Calls), _, NewLeaf),
-    evaluateLeaves(Leaves, TempResult),
-    ResultList = [NewLeaf | TempResult].
-
-replaceLevel([], []).
-replaceLevel([OldLeaf | OldRest], [NewLeaf | NewRest]) :-
-    tree:nodeData(OldLeaf, Data),
-    ai:searchTree(Tree),
-    tree:replaceSubTree(Data, NewLeaf, Tree, NewTree),
-    searchTree:writeSearchTreeToFacts(NewTree),
-    replaceLevel(OldRest, NewRest).
-
-% 2 because 1 is root node.
-miniMax(1).
-miniMax(CurrentLevel) :-
-    ai:searchTree(Tree),
-    search:nodesOfLevel(Tree, CurrentLevel, Members),
-    miniMax(_, Members),
-    NxtLevel is CurrentLevel - 1,
-    miniMax(NxtLevel).
-
 miniMax(_, []).
-miniMax(BestValue , [Node | RList]):-
-    tree:nodeChildren(Node, Children),
+miniMax(BestValue , [Node | RList]) :-
     searchNode:turnOfNode(Node, Color),
+    searchNode:valueOfNode(Node, Value),
     isStrategy(Color, Strategy),
-    miniMax(Strategy, BestValue, Children, ReturnChild),
-    searchNode:valueOfNode(ReturnChild, ReturnValue),
-    registerValue(ReturnValue, Node),
-    miniMax(BestValue, RList).
+    miniMax(Strategy, Value, RList, BestValue).
 
-miniMax(_, BestChild, [], ReturnChild) :- ReturnChild = BestChild.
-miniMax(Strategy, BestChild, [Child | RestChilds], ReturnChild) :-
-    setIfUnset(Child,BestChild),
-    bestChild(Strategy, BestChild, Child, Result),
-    miniMax(Strategy, Result, RestChilds, ReturnChild).
+miniMax(_,Value,[],Value).
+miniMax(Strategy,CurBestValue,[Node| RList], BestValue) :-
+    searchNode:valueOfNode(Node,NodeValue),
+    compareValues(Strategy,CurBestValue,NodeValue,TmpValue),
+    miniMax(Strategy,TmpValue,RList,BestValue).
 
-setIfUnset(Var1, Var2) :-
-    (var(Var2) ->
-        Var2 = Var1
-    ; true).
-
-registerValue(NewValue, OldNode):-
-    OldNode = t(node( World, ViewColor, _, Calls), ChildChilds),
-    tree:nodeData(OldNode, OldData),
-    NewNode = t( node(World, ViewColor, NewValue, Calls), ChildChilds),
-    ai:searchTree(Tree),
-    tree:replaceSubTree(OldData, NewNode, Tree, NewTree),
-    searchTree:writeSearchTreeToFacts(NewTree).
-
-bestChild(Strategy, OldChild, NewChild, BestChild) :-
-    searchNode:valueOfNode(OldChild, OldVal),
-    searchNode:valueOfNode(NewChild, NewVal),
-    (
-            OldVal == 'n/a' ->
-                BestChild = NewChild
-        ;
-            Strategy == min ->
-                (
-                    NewVal < OldVal ->
-                        BestChild = NewChild
-                    ;
-                        BestChild = OldChild
-                )
-        ;
-            Strategy == max ->
-                (
-                    NewVal > OldVal ->
-                        BestChild = NewChild
-                    ;
-                        BestChild = OldChild
-                )
-    ).
+compareValues(min,Value1,Value2, OptimalValue) :-
+    Value1 == ai_lost ->
+        OptimalValue = Value2
+    ;
+    Value2 == ai_lost ->
+        OptimalValue = Value1
+    ;
+    (Value1 == ai_won ; Value2 == ai_won) ->
+        OptimalValue = ai_won
+    ;
+    Value1 < Value2 ->
+        OptimalValue is Value1
+    ;
+        OptimalValue is Value2.
+compareValues(max,Value1,Value2, OptimalValue) :-
+    Value1 == ai_lost ->
+        OptimalValue = Value2
+    ;
+    Value2 == ai_lost ->
+        OptimalValue = Value1
+    ;
+    (Value1 == ai_won ; Value2 == ai_won) ->
+        OptimalValue = ai_won
+    ;
+    Value1 > Value2 ->
+        OptimalValue is Value1
+    ;
+        OptimalValue is Value2.

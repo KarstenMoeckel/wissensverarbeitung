@@ -18,10 +18,10 @@ isGameOver(World,Winner) :-
    stoneCount(World,WhiteCount,BlackCount),
    (
       WhiteCount == 0 ->
-         Winner = white
+         Winner = black
       ;
       BlackCount == 0 ->
-         Winner == black
+         Winner == white
       ;
       fail
    ).

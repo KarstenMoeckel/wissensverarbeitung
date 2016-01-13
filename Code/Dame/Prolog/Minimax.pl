@@ -15,16 +15,7 @@ miniMax(BestValue , [Node | RList]) :-
     searchNode:turnOfNode(Node, Color),
     searchNode:valueOfNode(Node, Value),
     isStrategy(Color, Strategy),
-    miniMax(Strategy, Value, RList, TmpValue),
-    (
-        TmpValue == lost ->
-            BestValue = won
-        ;
-        TmpValue == won ->
-            BestValue = lost
-        ;
-        BestValue = TmpValue
-    ).
+    miniMax(Strategy, Value, RList, BestValue).
 
 miniMax(_,Value,[],Value).
 miniMax(Strategy,CurBestValue,[Node| RList], BestValue) :-
@@ -33,28 +24,28 @@ miniMax(Strategy,CurBestValue,[Node| RList], BestValue) :-
     miniMax(Strategy,TmpValue,RList,BestValue).
 
 compareValues(min,Value1,Value2, OptimalValue) :-
-    Value1 == won ->
+    Value1 == ai_lost ->
         OptimalValue = Value2
     ;
-    Value2 == won ->
+    Value2 == ai_lost ->
         OptimalValue = Value1
     ;
-    (Value1 == lost ; Value2 == lost) ->
-        OptimalValue = lost
+    (Value1 == ai_won ; Value2 == ai_won) ->
+        OptimalValue = ai_won
     ;
     Value1 < Value2 ->
         OptimalValue is Value1
     ;
         OptimalValue is Value2.
 compareValues(max,Value1,Value2, OptimalValue) :-
-    Value1 == lost ->
+    Value1 == ai_lost ->
         OptimalValue = Value2
     ;
-    Value2 == lost ->
+    Value2 == ai_lost ->
         OptimalValue = Value1
     ;
-    (Value1 == won ; Value2 == won) ->
-        OptimalValue = won
+    (Value1 == ai_won ; Value2 == ai_won) ->
+        OptimalValue = ai_won
     ;
     Value1 > Value2 ->
         OptimalValue is Value1

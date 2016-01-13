@@ -11,7 +11,7 @@
 :- use_module(search).
 
 :- dynamic hittenStone/1.
-      
+
 %evalValue(StoneType, Position, Value)
 evalValue(normal, row1, 1000). %value of normal stone in relation to row 8; no entry for row 8 because stone is then a king
 evalValue(normal, row2, 1020).
@@ -29,20 +29,27 @@ evalBonus(canHit, 600).
 valueOfGame(World,ViewColor,Result) :-
    retractall(hittenStone(_)),
    valueOfGame(World,World,ViewColor,Result).
-   
+
 valueOfGame(_,[],_,0).
 valueOfGame(World,[Stone|State],ViewColor,Value) :-
    valueOfGame(World,State,ViewColor,CurResult),
    valueOfStone(World,Stone,StoneValue),
-   (
-      Stone = stone(_,ViewColor,_) ->
-         Result_n is CurResult + StoneValue
-      ;
-         Result_n is CurResult - StoneValue
-   ),
+   addValue(ViewColor,Stone,CurResult,StoneValue,Result_n),
    findall(Stone,hittenStone(Stone),HittenStones),
    wrongCalculatedValues(World, ViewColor,HittenStones,State,Correction),
    Value is Result_n + Correction.
+
+addValue(ViewColor, Stone,BaseValue,ValueToAdd,Result) :-
+    Stone = stone(_,ViewColor,_) ->
+       Result is BaseValue + ValueToAdd
+    ;
+       Result is BaseValue - ValueToAdd.
+
+subtractValue(ViewColor, Stone,BaseValue,ValueToAdd,Result) :-
+    Stone = stone(_,ViewColor,_) ->
+        Result is BaseValue - ValueToAdd
+    ;
+        Result is BaseValue + ValueToAdd.
 
 wrongCalculatedValues(_,_,[],_,0).
 wrongCalculatedValues(World,ViewColor,[Stone|HittenStones],State,Corrections) :-
@@ -51,20 +58,15 @@ wrongCalculatedValues(World,ViewColor,[Stone|HittenStones],State,Corrections) :-
          member(Stone,State) ->
             retract(hittenStone(Stone)),
             valueOfStone(Stone,WrongValue),
+            subtractValue(ViewColor,Stone,Correction1,WrongValue,TmpValue),
             hittenValue(Stone, CorrectValue),
-            Correction is CorrectValue - WrongValue,
-            (
-               Stone = stone(_,ViewColor,_) ->
-                  Corrections is Correction1 - Correction
-               ;
-               Corrections is Correction1 + Correction
-            )
+            addValue(ViewColor,Stone,TmpValue,CorrectValue,Corrections)
       ;
          Corrections = Correction1
    ).
 
 hittenValue(stone(_,_,Type),Value) :- evalValue(Type,canBeHitten,Value).
-   
+
 valueOfStone(World,Stone,Value) :-
    Stone = stone(Field,_,_),
    (
@@ -96,13 +98,13 @@ assertVictimList([]).
 assertVictimList([Victim|Victims]) :-
    assertz(hittenStone(Victim)),
    assertVictimList(Victims).
-   
+
 baseValueOfStone(stone(_,_,king), Value) :- evalValue(king,normal,Value).
 baseValueOfStone(stone(field(Row,_),Color,normal),Value) :-
    isNormalized(Row,Color,Normalized),
    atom_concat('row',Normalized,EvalPos),
    evalValue(normal,EvalPos,Value).
-   
+
 isNormalized(Row,Color,Normalized) :-
    game:player(StartPos,Color),
    (
@@ -112,7 +114,7 @@ isNormalized(Row,Color,Normalized) :-
       StartPos == bottom ->
          Normalized is 9 - Row
    ).
-   
+
 unhittableBonus(Field,Bonus) :-
    (
       board:isBorderCol(Field)
