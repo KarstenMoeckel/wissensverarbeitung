@@ -48,7 +48,7 @@ initialSearchTree(CurDepth,MaxDepth,World,Player,DoneCall,Tree) :-
         ;
             !
     ),
-    findall(Node,childNodes(CurDepth,Node),Nodes),
+    Findall(Node,childNodes(CurDepth,Node),Nodes),
     retractall(childNodes(CurDepth,_)),
     minimax:miniMax(Value,Nodes),
     createTreeNode(World,Player,Value,DoneCall,TmpTree),
