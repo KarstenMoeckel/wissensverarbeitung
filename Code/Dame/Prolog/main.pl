@@ -212,7 +212,7 @@ startGame :-
    (
       stonesLoaded,
       turn(_),
-      player(Player),
+      player(_),
       not(gameRunning)
    ) ->
       retract(stonesLoaded),
