@@ -211,6 +211,6 @@
             <Label Grid.Column="0" Grid.Row="7" Content="7" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18.667"/>
             <Label Grid.Column="0" Grid.Row="8" Content="8" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18.667"/>
         </Grid>
-        <Button x:Name="btn_Start" Content="Start" Grid.Column="2" HorizontalAlignment="Stretch" Margin="10,352,10,0" VerticalAlignment="Top" Click="btn_Start_Click"/>
+        <Button x:Name="btn_Start" Content="Start" Grid.Column="2" HorizontalAlignment="Stretch" Margin="10,0,10,10" VerticalAlignment="Bottom" Click="btn_Start_Click"/>
     </Grid>
 </Window>
