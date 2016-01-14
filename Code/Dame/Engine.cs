@@ -206,7 +206,7 @@ namespace Dame
             string direction = GetDirection(source, destination);
             PlQuery query = new PlQuery("moveStone", new PlTermV(source.ToTerm(), new PlTerm(direction), new PlTerm("NewDestination")));
             PlTermV termV = query.Solutions.FirstOrDefault();
-            return termV.Size == 0 ? default(Field) : new Field(termV[0]);
+            return termV.Size == 0 ? default(Field) : new Field(termV[2]);
         }
 
         private string GetDirection(Field source, Field destination)

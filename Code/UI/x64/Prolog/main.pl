@@ -22,9 +22,8 @@
 :- dynamic player/1.
 :- dynamic turn/1.
 :- dynamic gameRunning/0.
-:- dynamic usedStone/1.
 :- dynamic stonesLoaded/0.
-:- dynamic hitMove/0.
+:- dynamic hitMove/1.
 :- dynamic aiMove/1.
 
 getLog(Logs) :- game:getLogs(Logs).
@@ -36,33 +35,21 @@ moveStone(Source, Direction, Destination) :-
    isValidStone(Stone),
    doMove(Source, Direction, Destination),
    (
-      usedStone(_) ->
-         retract(usedStone(_))
+      hitMove(_) ->
+         retract(hitMove(_))
       ;
       true
    ),
    Stone = stone(_,Color,Type),
    (
-      isHitMove(Source,Destination) ->
-         assert(usedStone(stone(Destination,Color,Type)))
+      board:isFieldBetween(Source,Destination,_) ->
+         assert(hitMove(stone(Destination,Color,Type)))
       ;
       true
    ).
 
-isHitMove(Source,Destination) :-
-   board:isFieldBetween(Source,Destination,_) ->
-      (
-         not(hitMove)->
-            assert(hitMove)
-         ;
-         true
-      )
-   ;
-   retractall(hitMove),
-   fail.
-
 isValidStone(Stone) :-
-   usedStone(Used) ->
+   hitMove(Used) ->
       (
          Used == Stone ->
             true
@@ -116,17 +103,17 @@ isGameRunning :-
    fail.
 
 areMoreHitsPossible(Source, PossibleHits) :-
-   hitMove,
+   hitMove(_),
    game:createStoneList(World),
    game:stoneAt(Source,Stone),
    rulez:canHit(World, Stone, HitTree),
-   search:membersOfLevel(HitTree,2,HitStones),
    (
-      HitStones == [] ->
-         retractall(usedStone(_)),
+      tree:isLeaf(HitTree) ->
+         retractall(hitMove(_)),
          fail
       ;
-      getFields(HitStones,PossibleHits)
+         search:membersOfLevel(HitTree,2,HitStones),
+         getFields(HitStones,PossibleHits)
    ).
 
 getFields([],[]).
@@ -197,9 +184,8 @@ changeTurn :-
 nextTurn :-
    isGameRunning,
    (
-      not(usedStone(_)) ->
-         retractall(hitMove),
-         retractall(moveList(_)),
+      not(hitMove(_)) ->
+         retractall(hitMove(hitMove(_))),
          (
             hasPlayerWon
             ;

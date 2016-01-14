@@ -37,13 +37,12 @@ simulateHits(World,Hitter,Victims, NewWorld,Calls) :-
     simulateHits(World,Hitter,Victims, [],NewWorld,Calls).
 
 simulateHits(World,_,[], Calls,World,Calls).
-simulateHits(World,Hitter, [Victim|Victims], CurCalls,NewWorld, Calls) :-
+simulateHits(World,Hitter, [Victim|Victims], CurCalls,NewWorld, [Call | TmpCalls]) :-
     Hitter = stone(HField,Color,Mode),
     Victim = stone(VField,_,_),
     board:isFieldBetween(HField,Destination,VField),
     simulateMove(World,Hitter,Destination,TmpWorld, Call),
-    simulateHits(TmpWorld,stone(Destination,Color,Mode),Victims,CurCalls,NewWorld,TmpCalls),
-    Calls = [Call| TmpCalls].
+    simulateHits(TmpWorld,stone(Destination,Color,Mode),Victims,CurCalls,NewWorld,TmpCalls).
 
 removeEnemyStones([], _, []).
 removeEnemyStones([Stone| World], EnemyColor, NewList):-

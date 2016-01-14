@@ -107,13 +107,13 @@ areMoreHitsPossible(Source, PossibleHits) :-
    game:createStoneList(World),
    game:stoneAt(Source,Stone),
    rulez:canHit(World, Stone, HitTree),
-   search:membersOfLevel(HitTree,2,HitStones),
    (
-      HitStones == [] ->
+      tree:isLeaf(HitTree) ->
          retractall(hitMove(_)),
          fail
       ;
-      getFields(HitStones,PossibleHits)
+         search:membersOfLevel(HitTree,2,HitStones),
+         getFields(HitStones,PossibleHits)
    ).
 
 getFields([],[]).
