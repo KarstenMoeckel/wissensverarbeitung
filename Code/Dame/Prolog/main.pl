@@ -189,14 +189,27 @@ changeTurn :-
    logCurrentPlayer.
 
 nextTurn :-
-   isGameRunning,
+   gameRunning,
    (
       not(hitMove(_)) ->
          retractall(hitMove(hitMove(_))),
          (
             hasPlayerWon
             ;
-            changeTurn
+            (
+               changeTurn,
+               not(isAIMove) ->
+                  (
+                     not(canHumanPlayerMove)->
+                        game:logMessage('Der menschliche Spieler kann keinen Zug mehr machen.'),
+                        retractall(gameRunning)
+                     ;
+                        true
+                  )
+
+               ;
+                  true
+            )
          )
       ;
       game:logMessage('Es müssen noch Steine geschlagen werden.'),
@@ -220,7 +233,7 @@ startGame :-
 
 canHumanPlayerMove :-
    player(Player),
-   moveTreeOfPlayer(Player,Tree)
+   moveTreeOfPlayer(Player,Tree),
    not(tree:isLeaf(Tree)).
 
 aiNextMove :-
@@ -231,8 +244,9 @@ aiNextMove :-
       canHumanPlayerMove ->
          game:logMessage('Die KI kann keinen Zug machen.'),
          retractall(gameRunning)
-   ;
-      game:logMessage('Beide Spieler können keine Züge mehr machen')
+      ;
+         game:logMessage('Beide Spieler können keine Züge mehr machen'),
+         retractall(gameRunning)
    ).
 
 performAiMove :-

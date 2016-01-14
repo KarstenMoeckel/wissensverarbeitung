@@ -22,7 +22,13 @@ namespace Dame
             }
             catch (System.IO.FileNotFoundException)
             {
-                MessageBox.Show("Der Pfad zum Prologinterpreter muss der PATH-Variable hinzugefügt werden.", "FEHLER", MessageBoxButton.OK,MessageBoxImage.Error);
+                MessageBox.Show("Der Pfad zum Prologinterpreter muss der PATH-Variable hinzugefügt werden!", "FEHLER", MessageBoxButton.OK,MessageBoxImage.Error);
+                Shutdown();
+                return;
+            }
+            catch(BadImageFormatException)
+            {
+                MessageBox.Show("Die Prolog-Architektur passt nicht zur Programmarchitektur!", "FEHLER", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();
                 return;
             }
