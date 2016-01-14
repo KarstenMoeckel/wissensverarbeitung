@@ -218,14 +218,21 @@ startGame :-
       game:logMessage('Das Spiel kann nicht geladen werde.'),
       fail.
 
+canHumanPlayerMove :-
+   player(Player),
+   moveTreeOfPlayer(Player,Tree)
+   not(tree:isLeaf(Tree)).
+
 aiNextMove :-
-   ai:nextAiMove(Calls),
+   ai:nextAiMove(Calls)->
+      assert(aiMove(Calls))
+   ;
    (
-      not(Calls == []) ->
-         assert(aiMove(Calls))
-      ;
+      canHumanPlayerMove ->
          game:logMessage('Die KI kann keinen Zug machen.'),
-         fail
+         retractall(gameRunning)
+   ;
+      game:logMessage('Beide Spieler können keine Züge mehr machen')
    ).
 
 performAiMove :-

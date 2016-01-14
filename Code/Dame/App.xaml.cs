@@ -15,7 +15,7 @@ namespace Dame
             try
             {
 #if X64
-                PlEngine.Initialize(new string[] { "-q", "-L2G", "-T2G", "-G2G" });
+                PlEngine.Initialize(new string[] { "-q", "-L5G", "-T5G", "-G5G" });
 #else
                 PlEngine.Initialize(new string[] { "-q", "-L128M", "-T128M", "-G128M" });
 #endif

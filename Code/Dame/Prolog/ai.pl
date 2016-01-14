@@ -4,7 +4,8 @@
 :- module(ai, [
      updateTreeDepth/1,
      updateAIPlayer/1,
-     nextAiMove/1
+     nextAiMove/1,
+     moveTreeOfPlayer/2
      ]).
 
 :- use_module(searchNode).
@@ -14,10 +15,6 @@
 
 :- dynamic treeDepth/1.
 :- dynamic aiPlayer/1.
-
-% TODO: Warnungen beheben
-%       Code Optimieren, writeln entfernen, Leerzeilen
-%       Kommentieren
 
 buildSearchTree(Tree) :-
     treeDepth(Depth),
@@ -39,8 +36,12 @@ findNodeByValue([Node|Nodes], Value,FoundNode):-
     ;
     findNodeByValue(Nodes,Value,FoundNode).
 
+moveTreeOfPlayer(Player,Tree) :-
+   initialSearchTree(2,Player,Tree).
+
 nextAiMove(Calls):-
     buildSearchTree(Tree),
+    not(tree:isLeaf(Tree)),
     valueOfNode(Tree,Value),
     nodeChildren(Tree,Children),
     findNodeByValue(Children,Value,Node),
