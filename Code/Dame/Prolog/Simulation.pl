@@ -59,7 +59,7 @@ simulateMove(World, Stone,Destination,NewWorld, Call) :-
     subtract(World,[Stone],TmpWorld),
     Stone = stone(Source,Color,Mode),
     (
-       rulez:canTransformIntoKing(Stone) ->
+       rulez:canTransformIntoKing(stone(Destination,Color,Mode)) ->
           Tmp2World = [stone(Destination,Color,king)| TmpWorld]
        ;
           Tmp2World = [stone(Destination,Color,Mode)| TmpWorld]

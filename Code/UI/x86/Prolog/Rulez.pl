@@ -60,7 +60,8 @@ isMoveValid(World,Stone,Direction,Destination):-
             board:stoneAt(World,DField,Victim),
             canHit(World,Stone,Victim,Direction),
             Destination = JumpTarget
-   ).
+   ),
+   board:field(Destination,black).
 
 canTransformIntoKing(stone(_,_,king)) :- fail.
 canTransformIntoKing(stone(field(Row,_),Color,normal)) :-

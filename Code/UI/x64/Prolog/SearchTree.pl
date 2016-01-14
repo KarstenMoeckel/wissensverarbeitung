@@ -49,9 +49,16 @@ initialSearchTree(CurDepth,MaxDepth,AIPlayer,World,Player,DoneCall,Tree) :-
     ),
     findall(Node,childNodes(CurDepth,Node),Nodes),
     retractall(childNodes(CurDepth,_)),
-    minimax:miniMax(Value,Nodes),
-    createTreeNode(World,Player,Value,DoneCall,TmpTree),
-    tree:appendChildNodesToRootNode(Nodes,TmpTree,Tree).
+    (
+       Nodes == [] ->
+          initialSearchTree(MaxDepth,MaxDepth,AIPlayer,World,Player,DoneCall,Tree) %No moves possible, Node is Leaf
+       ;
+       (
+          minimax:miniMax(Value,Nodes),
+          createTreeNode(World,Player,Value,DoneCall,TmpTree),
+          tree:appendChildNodesToRootNode(Nodes,TmpTree,Tree)
+       )
+    ).
 
 createNewNodes([],_,_,[]).
 createNewNodes([OldNode| OldNodes],StartDepth, MaxDepth, [NewNode| NewNodes]):-
