@@ -192,8 +192,8 @@ namespace Dame
             PlTermV termV = query.Solutions.FirstOrDefault();
             if (termV.Size == 0)
                 return new List<Field>();
-            IEnumerable<PlTerm> list = termV[0].ToList();
-            return list.Select<PlTerm, Field>((t) => new Field(t));
+            IEnumerable<PlTerm> list = termV[1].ToList();
+            return list.Select<PlTerm, Field>((t) => new Field(t)).ToList();
         }
 
         private bool StartNextTurn()

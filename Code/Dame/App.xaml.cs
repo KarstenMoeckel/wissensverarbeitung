@@ -23,7 +23,11 @@ namespace Dame
                 return;
             }
             PlQuery.PlCall("chdir('" + System.IO.Path.Combine(Environment.CurrentDirectory, "Prolog").Replace('\\','/') + "')");
-            if (!PlQuery.PlCall("consult('main')"))
+            try
+            {
+                PlQuery.PlCall("consult('main')");
+            }
+            catch (SbsSW.SwiPlCs.Exceptions.PlException)
             {
                 MessageBox.Show("Konnte Prolog-Hauptdatei nicht konsultieren.", "FEHLER", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();

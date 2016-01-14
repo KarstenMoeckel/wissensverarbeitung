@@ -175,11 +175,18 @@ hasPlayerWon :-
    game:logMessage(Message),
    retract(gameRunning).
 
+logCurrentPlayer :-
+   turn(white) ->
+      game:logMessage('weiss ist am Zug.')
+   ;
+      game:logMessage('schwarz ist am Zug.').
+
 changeTurn :-
    turn(Player),
    rulez:isEnemy(Player,Enemy),
    retract(turn(Player)),
-   assert(turn(Enemy)).
+   assert(turn(Enemy)),
+   logCurrentPlayer.
 
 nextTurn :-
    isGameRunning,
@@ -205,7 +212,8 @@ startGame :-
    ) ->
       retract(stonesLoaded),
       assert(gameRunning),
-      game:logMessage('Das Spiel wurde gestartet.')
+      game:logMessage('Das Spiel wurde gestartet.'),
+      logCurrentPlayer
    ;
       game:logMessage('Das Spiel kann nicht geladen werde.'),
       fail.
