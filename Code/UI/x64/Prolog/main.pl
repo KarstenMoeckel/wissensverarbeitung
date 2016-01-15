@@ -32,13 +32,20 @@ moveStone(Source, Direction, Destination) :-
    isGameRunning,
    isPlayerTurn,
    hasFieldStone(Source,Stone),
-   isValidStone(Stone),
-   doMove(Source, Direction, Destination),
+   isPlayerStone(Stone),
    (
-      hitMove(_) ->
-         retract(hitMove(_))
+      hitMove(CheckStone) ->
+         (
+            CheckStone = stone(Source,_,_) ->
+               retract(hitMove(_)),
+               doMove(hitForce,Source, Direction, Destination)
+            ;
+               game:logMessage('Es muss mit dem gleichem Stein weitergespielt werden.'),
+               fail
+         )
+
       ;
-      true
+         doMove(noHitForce,Source, Direction, Destination)
    ),
    (
       board:isFieldBetween(Source,Destination,_) ->
@@ -46,24 +53,6 @@ moveStone(Source, Direction, Destination) :-
       ;
       true
    ).
-
-isValidStone(Stone) :-
-
-    Stone = stone(StoneField, _, _),
-
-   hitMove(Used) ->
-      (
-         (
-            Used = stone(UsedField, _, _),
-            UsedField == StoneField
-        ) ->
-            true
-         ;
-            game:logMessage('Es muss mit dem gleichem Stein weitergespielt werden.'),
-            fail
-      )
-   ;
-      isPlayerStone(Stone).
 
 isAIMove :-
    player(Color),
@@ -76,7 +65,15 @@ hasFieldStone(Field,Stone) :-
       game:logMessage('An dem Feld ist kein Stein.'),
       fail.
 
-doMove(Source, Direction, Destination) :-
+doMove(hitForce,Source, Direction, Destination) :-
+   game:move(Source,Direction,Destination),
+   board:isFieldBetween(Source,Destination,_) ->
+      game:performMove(Source,Destination)
+   ;
+   game:logMessage('Der Zug ist ungültig.'),
+   fail.
+
+doMove(noHitForce,Source, Direction, Destination) :-
    game:move(Source,Direction,Destination) ->
       game:performMove(Source,Destination)
    ;
@@ -122,9 +119,10 @@ areMoreHitsPossible(Source, PossibleHits) :-
    ).
 
 getFields([],[]).
-getFields([stone(Field,_,_)| StoneList],FieldList) :-
-   getFields(StoneList,TmpList),
-   FieldList = [Field | TmpList].
+getFields([hit(_,Call)| Hits],[VField | TmpList]) :-
+   getFields(Hits,TmpList),
+   Call =.. [performMove,Source,Destination],
+   board:isFieldBetween(Source,Destination,VField).
 
 getStoneList(Stones) :- game:getStones(Stones).
 

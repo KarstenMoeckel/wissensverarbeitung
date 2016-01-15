@@ -120,8 +120,17 @@ namespace Dame
                     {
                         StoneToMove = destination;
                         while (MoveDestination == default(Field))
+                        {
                             Thread.Sleep(250);
-                        destination = MoveStone(destination, MoveDestination);
+                            if (MoveDestination != default(Field))
+                            {
+                                destination = MoveStone(destination, MoveDestination);
+                                if (destination != default(Field))
+                                    break;
+                                MoveDestination = default(Field);
+                                destination = StoneToMove;
+                            }
+                        }
                         MoveDestination = default(Field);
                     }
                     StoneToMove = default(Field);

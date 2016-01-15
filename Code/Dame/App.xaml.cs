@@ -17,7 +17,7 @@ namespace Dame
 #if X64
                 PlEngine.Initialize(new string[] { "-q", "-L5G", "-T5G", "-G5G" });
 #else
-                PlEngine.Initialize(new string[] { "-q", "-L128M", "-T128M", "-G128M" });
+                PlEngine.Initialize(new string[] { "-q", "-L128M", "-T128M", "-G128M" }); //under x86 not more possible
 #endif
             }
             catch (System.IO.FileNotFoundException)
