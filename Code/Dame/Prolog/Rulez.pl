@@ -2,7 +2,7 @@
 
 Module realize the rules of checkers.
 
-@author: Robert Maas
+@author: Robert Maas and Christian Schuett
 @date: 22.12.2015
 */
 

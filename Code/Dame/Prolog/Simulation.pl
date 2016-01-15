@@ -2,7 +2,7 @@
 
 This module simulates moves for the ai.
 
-@author Christian Schuett
+@author Christian Schuett, Karsten Moeckel and Robert Maas
 @date 30.12.2015
 */
 

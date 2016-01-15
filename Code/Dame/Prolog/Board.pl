@@ -2,6 +2,8 @@
 
 Module to do board stuff.
 
+@autor: Robert Maas
+@date: 22.12.2015
 */
 
 :- module(board, [

@@ -2,7 +2,7 @@
 
 Modul to search in the searchtree.
 
-@author: Robert Maas
+@author: Robert Maas and Karsten Moeckel
 @date: 20.12.2015
 */
 :- module(search,[

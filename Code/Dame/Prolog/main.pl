@@ -4,7 +4,7 @@ Main module. Called by the gui.
 Moves the stones in the knowledge base.
 Starts moves of the ai.
 
-@author Robert Maas
+@author Robert Maas and Karsten Moeckel
 @date 04.01.2016
 */
 

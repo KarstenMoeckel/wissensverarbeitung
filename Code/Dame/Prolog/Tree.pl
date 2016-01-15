@@ -2,7 +2,7 @@
 
 Module to create a tree.
 
-@author Robert Maas
+@author Karsten Moeckel and Robert Maas
 @date 19.12.2015
 */
 
