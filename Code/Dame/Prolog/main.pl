@@ -1,5 +1,12 @@
-﻿% Autor: Robert Maas
-% Datum: 04.01.2016
+/** <main>
+
+Main module. Called by the gui.
+Moves the stones in the knowledge base.
+Starts moves of the ai.
+
+@author Robert Maas
+@date 04.01.2016
+*/
 
 :- module(main, [
    getLog/1,
@@ -28,6 +35,12 @@
 
 getLog(Logs) :- game:getLogs(Logs).
 
+/**
+ * Predicate to move a stone in the knowledge base.
+ * @param Source The source field.
+ * @param Direction The moveDirection.
+ * @param Destination The destination field.
+ */
 moveStone(Source, Direction, Destination) :-
    isGameRunning,
    isPlayerTurn,
@@ -54,10 +67,18 @@ moveStone(Source, Direction, Destination) :-
       true
    ).
 
+/**
+ * Checks if the ai has the current turn.
+ */
 isAIMove :-
    player(Color),
    not(turn(Color)).
 
+/**
+ * Predicate checks if a field has a stone.
+ * @param Field
+ * @return Stone
+ */
 hasFieldStone(Field,Stone) :-
    game:stoneAt(Field,Stone) ->
       true
@@ -65,6 +86,12 @@ hasFieldStone(Field,Stone) :-
       game:logMessage('An dem Feld ist kein Stein.'),
       fail.
 
+/**
+ * Predicate to do a move ont he board.
+ * @param Source The source field.
+ * @param Direction The move direction.
+ * @param Destination The destination field.
+ */
 doMove(hitForce,Source, Direction, Destination) :-
    game:move(Source,Direction,Destination),
    board:isFieldBetween(Source,Destination,_) ->
@@ -87,6 +114,9 @@ isPlayerStone(stone(_,Color,_)) :-
       game:logMessage('Das war nicht die Spielerfarbe'),
       fail.
 
+/**
+ * Checks if the human player has the turn.
+ */
 isPlayerTurn :-
    (
       player(Player),
@@ -97,6 +127,9 @@ isPlayerTurn :-
    game:logMessage('Der menschliche Spieler ist nicht am Zug.'),
    fail.
 
+/**
+ * Checks if the game is running.
+ */
 isGameRunning :-
    gameRunning ->
       true
@@ -104,6 +137,11 @@ isGameRunning :-
    game:logMessage('Das Spiel wurde nicht gestartet.'),
    fail.
 
+/**
+ * Predicate checks if a stone can hit enemy stones.
+ * @param Source the source field.
+ * @return PossibleHits List with all hits.
+ */
 areMoreHitsPossible(Source, PossibleHits) :-
    hitMove(_),
    game:createStoneList(World),
@@ -126,6 +164,10 @@ getFields([hit(_,Call)| Hits],[VField | TmpList]) :-
 
 getStoneList(Stones) :- game:getStones(Stones).
 
+/**
+ * Load the start position of the stones with a file
+ * @param File Path to the file.
+ */
 loadStartPos(File) :-
    not(gameRunning),
    open(File, read, Stream),
@@ -146,6 +188,11 @@ loadStartPos(File) :-
    atom_concat(Message_tmp, ' wurde erfolgreich geladen.', Message),
    game:logMessage(Message).
 
+/**
+ * Predicate to set the Options from the gui.
+ * @param Option
+ * @param Value
+ */
 option(treeDepth, Depth) :-
    not(gameRunning),
    number(Depth),
@@ -165,6 +212,9 @@ option(startColor, Color) :-
    retractall(turn(_)),
    assert(turn(Color)).
 
+/**
+ * Checks if a player has won and writes a log message.
+ */
 hasPlayerWon :-
    game:createStoneList(World),
    rulez:isGameOver(World,Winner) ->
@@ -184,6 +234,9 @@ logCurrentPlayer :-
    ;
       game:logMessage('schwarz ist am Zug.').
 
+/**
+ * Changes the turn of a player.
+ */
 changeTurn :-
    turn(Player),
    rulez:isEnemy(Player,Enemy),
@@ -191,6 +244,9 @@ changeTurn :-
    assert(turn(Enemy)),
    logCurrentPlayer.
 
+/**
+ * Changes the turn of a player.
+ */
 nextTurn :-
    gameRunning,
    (
@@ -218,6 +274,9 @@ nextTurn :-
          fail
    ).
 
+/**
+ * Starts the game.
+ */
 startGame :-
    (
       stonesLoaded,
@@ -233,11 +292,17 @@ startGame :-
       game:logMessage('Das Spiel kann nicht geladen werde.'),
       fail.
 
+/**
+ * Checks if the human player can move.
+ */
 canHumanPlayerMove :-
    player(Player),
    moveTreeOfPlayer(Player,Tree),
    not(tree:isLeaf(Tree)).
 
+/**
+ * Predicate to get the next ai move.
+ */
 aiNextMove :-
    ai:nextAiMove(Calls, Value)->
       assert(aiMove(Calls)),
@@ -253,6 +318,9 @@ aiNextMove :-
          retractall(gameRunning)
    ).
 
+/**
+ * Predicate to perform the next ai move from @see aiNextMove.
+ */
 performAiMove :-
    aiMove([Call | RestCalls]),
    retractall(aiMove(_)),
