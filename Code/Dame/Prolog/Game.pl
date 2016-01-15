@@ -2,7 +2,7 @@
 
 Modul provides all necessary data for the game.
 
-@author Robert Maas
+@author Robert Maas and Christian Schuett
 @date 02.01.2016
 */
 
