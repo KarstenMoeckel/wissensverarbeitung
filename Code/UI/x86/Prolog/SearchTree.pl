@@ -18,9 +18,9 @@ initialSearchTree(MaxDepth,StartPlayer,Tree) :-
     game:createStoneList(World),
     initialSearchTree(1,MaxDepth,StartPlayer,World,StartPlayer,[],Tree).
 
-initialSearchTree(MaxDepth,MaxDepth,_,World,Player,Call,Tree):-
+initialSearchTree(MaxDepth,MaxDepth,AIPlayer,World,Player,Call,Tree):-
     rulez:isEnemy(Player,Enemy),
-    evaluation:valueOfGame(World,Enemy,Value),
+    evaluation:valueOfGame(World,AIPlayer,Value),
     createTreeNode(World,Player,Value,Call,Tree),!.
 
 initialSearchTree(CurDepth,MaxDepth,AIPlayer,World,Player,Call,Tree) :-
