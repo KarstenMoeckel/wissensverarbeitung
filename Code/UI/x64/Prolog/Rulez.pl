@@ -24,7 +24,7 @@ isGameOver(World,Winner) :-
          Winner = black
       ;
       BlackCount == 0 ->
-         Winner == white
+         Winner = white
       ;
       fail
    ).

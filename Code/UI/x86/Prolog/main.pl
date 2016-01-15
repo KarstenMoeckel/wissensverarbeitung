@@ -40,7 +40,6 @@ moveStone(Source, Direction, Destination) :-
       ;
       true
    ),
-   Stone = stone(_,Color,Type),
    (
       board:isFieldBetween(Source,Destination,_) ->
          assert(hitMove(stone(Destination,_,_)))
@@ -198,7 +197,6 @@ nextTurn :-
    gameRunning,
    (
       not(hitMove(_)) ->
-         retractall(hitMove(hitMove(_))),
          (
             hasPlayerWon
             ;
