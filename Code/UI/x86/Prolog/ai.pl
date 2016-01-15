@@ -4,7 +4,7 @@
 :- module(ai, [
      updateTreeDepth/1,
      updateAIPlayer/1,
-     nextAiMove/1,
+     nextAiMove/2,
      moveTreeOfPlayer/2
      ]).
 
@@ -39,7 +39,7 @@ findNodeByValue([Node|Nodes], Value,FoundNode):-
 moveTreeOfPlayer(Player,Tree) :-
    initialSearchTree(2,Player,Tree).
 
-nextAiMove(Calls):-
+nextAiMove(Calls, Value):-
     buildSearchTree(Tree),
     not(tree:isLeaf(Tree)),
     valueOfNode(Tree,Value),
