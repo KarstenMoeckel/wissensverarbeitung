@@ -1,6 +1,6 @@
 /** <board>
 
-Module to fuck cunt shit
+Module to do board stuff.
 
 */
 
