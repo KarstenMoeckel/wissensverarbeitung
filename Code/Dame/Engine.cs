@@ -4,7 +4,6 @@ using System.Linq;
 using SbsSW.SwiPlCs;
 using System.Threading;
 using System.ComponentModel;
-using System.Collections.ObjectModel;
 
 namespace Dame
 {
@@ -73,6 +72,7 @@ namespace Dame
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        //start engine
         public void Init()
         {
             running = true;
@@ -80,6 +80,7 @@ namespace Dame
             stoneThread.Start();
         }
 
+        //start game
         public bool Start()
         {
             Options.Save();
@@ -139,6 +140,7 @@ namespace Dame
             }
         }
 
+        //logic for controlling game
         private void runGame_Thread()
         {
             PlEngine.PlThreadAttachEngine();
@@ -153,6 +155,7 @@ namespace Dame
             GameOver?.Invoke(this, new EventArgs());
         }
 
+        //get logs
         private void CheckHistory_Thread()
         {
             PlEngine.PlThreadAttachEngine();
@@ -171,6 +174,7 @@ namespace Dame
             PlEngine.PlThreadDestroyEngine();
         }
 
+        //get stones
         private void CheckStones_Thread()
         {
             PlEngine.PlThreadAttachEngine();
@@ -189,12 +193,14 @@ namespace Dame
             PlEngine.PlThreadDestroyEngine();
         }
 
+        //suspend engine
         public void Stop()
         {
             running = false;
             gameThread?.Abort();
         }
 
+        //check for more hits
         private IEnumerable<Field> MoreHitsPossible(Field source)
         {
             PlQuery query = new PlQuery("areMoreHitsPossible", new PlTermV(source.ToTerm(), new PlTerm("Hits")));
@@ -205,11 +211,13 @@ namespace Dame
             return list.Select<PlTerm, Field>((t) => new Field(t)).ToList();
         }
 
+        //start next turn
         private bool StartNextTurn()
         {
             return PlQuery.PlCall("main:nextTurn");
         }
 
+        //moves a stone (destination is propably not the real destination; real destination is return value)
         private Field MoveStone(Field source, Field destination)
         {
             string direction = GetDirection(source, destination);

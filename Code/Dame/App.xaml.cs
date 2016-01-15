@@ -9,7 +9,7 @@ namespace Dame
     /// </summary>
     public partial class App : Application
     {
-
+        //initialsise prolog interpreter
         protected override void OnStartup(StartupEventArgs e)
         {
             try
