@@ -51,6 +51,7 @@ namespace Dame
             }
         }
 
+        //update hit possablities in GUI
         private void updateHits()
         {
             foreach (Button b in possibleHits)
@@ -65,6 +66,7 @@ namespace Dame
             }
         }
 
+        //visualise current stone
         private void updateMoveStone()
         {
             if (currentMoveStone != null)
@@ -91,6 +93,7 @@ namespace Dame
             return list.First((b) => Grid.GetColumn(b) == field.Column && Grid.GetRow(b) == field.Row);
         }
 
+        //update stones in gui
         private void updateStones()
         {
             foreach (Button b in gameField.Children.OfType<Button>())
@@ -110,6 +113,7 @@ namespace Dame
             }
         }
 
+        //eventhandler for a clicked game field
         private void GameFieldButton_Click(object sender, RoutedEventArgs e)
         {
             Button b = (Button)sender;
@@ -171,7 +175,7 @@ namespace Dame
             if (result.Value)
             {
                 if (!Engine.LoadFile(dialog.FileName))
-                    MessageBox.Show("Die StartPositionen konnen nicht geladen werden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Die StartPositionen konnten nicht geladen werden.", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
