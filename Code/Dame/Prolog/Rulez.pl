@@ -1,5 +1,10 @@
-% Autor: Robert Maas
-% Datum: 22.12.2015
+/** <rulez>
+
+Module realize the rules of checkers.
+
+@author: Robert Maas
+@date: 22.12.2015
+*/
 
 :- module(rulez, [
      moveDirections/2,
@@ -17,6 +22,11 @@
 
 :- dynamic possibleHit/2.
 
+/**
+ * Predicate to check if a player won.
+ * @param World The current world.
+ * @return Winner If there is a winner, color will be returned else fail.
+ */
 isGameOver(World,Winner) :-
    stoneCount(World,WhiteCount,BlackCount),
    (
@@ -29,6 +39,12 @@ isGameOver(World,Winner) :-
       fail
    ).
 
+/**
+ * Predicate counts the stones of all players.
+ * @param World List of all stones.
+ * @return WhiteCount The number of white stones.
+ * @return BlackCount The number of black stones.
+ */
 stoneCount([], 0, 0).
 stoneCount([stone(_,Color,_)|World], WhiteCount,BlackCount) :-
    stoneCount(World,TmpWhite,TmpBlack),
@@ -41,6 +57,11 @@ stoneCount([stone(_,Color,_)|World], WhiteCount,BlackCount) :-
          BlackCount = TmpBlack
    ).
 
+/**
+ * Predicate returns the opposite player.
+ * @param Player
+ * @return Enemy
+ */
 isEnemy(Player,Enemy) :-
    Player == black ->
       Enemy = white
@@ -48,7 +69,14 @@ isEnemy(Player,Enemy) :-
    Player == white ->
       Enemy = black.
 
-
+/**
+ * Checks if a move in specific direction is valid.
+ *
+ * @param World The world to look in.
+ * @param Stone The stone to move.
+ * @param Direction The direction to move.
+ * @return Destination The field the stone will be.
+ */
 isMoveValid(World,Stone,Direction,Destination):-
    moveDirections(Stone,Direction),
    Stone = stone(SField,_,_),
@@ -66,6 +94,12 @@ isMoveValid(World,Stone,Direction,Destination):-
    ),
    board:field(Destination,black).
 
+/**
+ * Predicate to check if stone can turn into a king after a move.
+ * Stones can turn into kings, when they reache the enemies first row.
+ * @param Stone The stone to check.
+ * @param true if can turn to king, else false.
+ */
 canTransformIntoKing(stone(_,_,king)) :- fail.
 canTransformIntoKing(stone(field(Row,_),Color,normal)) :-
    game:player(StartPos,Color),
@@ -79,6 +113,11 @@ canTransformIntoKing(stone(field(Row,_),Color,normal)) :-
 
 
 %call: +Stone, -Direction
+/**
+ * Predicate to get all possible move directions of a Stone.
+ * @param Stone
+ * @return Direction The move direction.
+ */
 moveDirections(stone(field(Row,Col),_,king), Direction):-
       Row \==8,
       bottomDirections(Col, Direction)
@@ -108,6 +147,12 @@ bottomDirections(Col, Direction) :-
       Col \==8,
       Direction = bottomRight.
 
+/**
+ * Predicate checks if Stone can hit or multihit an enemy stone.
+ * @param World The world the Stone is in.
+ * @param Hitter The stone that may can hit.
+ * @return HitTree List of moves the stone can make to hit enemy stones.
+ */
 canHit(World,Hitter,HitTree) :-
    canMultiHit(World,Hitter,1,[],HitTree).
 
@@ -127,6 +172,14 @@ canMultiHit(World,Hitter,CurLevel,Call,Tree):-
     tree:createNode(hit(World,Call),Nodes,Tree).
 
 %call: +World, +Hitter, -NewHitter, NewWorld, -Call
+/**
+ * Predicate checks all hitpossibilities for a stone.
+ * @param World List of all stones.
+ * @param Hitter The stone that can hit.
+ * @return NewHitter The hitter after it moved.
+ * @return NewWorld
+ * @return Call
+ */
 hasHitPossibility(World,Hitter,NewHitter,NewWorld,Call) :-
   rulez:moveDirections(Hitter,Direction),
   Hitter = stone(Field,_,_),
@@ -144,10 +197,25 @@ canHit(World, Hitter, stone(VField,VColor,_), Relation) :-
    game:field(Destination,black),
    board:isFree(World,Destination).
 
+/**
+ * Predicate to remove a stone from the knowledge base after it got beaten up.
+ * @param World List of all stones.
+ * @param OverjumpedField The field the stone could be on.
+ * @return NewWorld The world without the stone.
+ */
 removeOverJumpedStone(World,OverjumpedField,NewWorld):-
     board:stoneAt(World,OverjumpedField,Stone),
     subtract(World,[Stone],NewWorld).
 
+/**
+ * Predicate simulates a move to check if the Hitter can
+ * hit another stone -> multihit
+ * @param World List of all stones.
+ * @param Stone The hitter.
+ * @param Destination The move direction
+ * @return NewWorld The world after the move.
+ * @return Call The list of moves that is necessary to reach tthe new world.
+ */
 simulateMove(World,Stone,Destination,NewWorld, Call) :-
     subtract(World,[Stone],TmpWorld),
     Stone = stone(Source,Color,Mode),
