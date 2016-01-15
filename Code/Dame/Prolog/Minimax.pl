@@ -6,9 +6,9 @@
 :- use_module(main).
 
 isStrategy(Color, Strategy) :-
-    main:player(Color) -> Strategy = min
+    ai:aiPlayer(Color) -> Strategy = max
     ;
-    Strategy = max.
+    Strategy = min.
 
 miniMax(_, []).
 miniMax(BestValue , [Node | RList]) :-
