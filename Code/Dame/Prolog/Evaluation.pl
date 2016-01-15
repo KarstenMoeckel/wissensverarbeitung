@@ -85,8 +85,8 @@ hitBonus(World,Stone,Bonus) :-
    search:longesPath(HitTree,Length,Path),
    (
          Length > 1 ->
-            Path = [Stone|Victims],
-            assertVictimList(Victims),
+            Path = [hit(_,_)|Hits],
+            assertVictimList(World,Hits),
             Multiplier is Length - 1,
             evalBonus(canHit,BonusBase),
             Bonus is Multiplier * BonusBase
@@ -94,10 +94,13 @@ hitBonus(World,Stone,Bonus) :-
          Bonus = 0
    ).
 
-assertVictimList([]).
-assertVictimList([Victim|Victims]) :-
+assertVictimList(_,[]).
+assertVictimList(World,[hit(_,Call)|Hits]) :-
+  Call =.. [performMove,Source,Destination],
+  board:isFieldBetween(Source,Destination,VField),
+  board:stoneAt(World,VField,Victim),
    assertz(hittenStone(Victim)),
-   assertVictimList(Victims).
+   assertVictimList(World,Hits).
 
 baseValueOfStone(stone(_,_,king), Value) :- evalValue(king,normal,Value).
 baseValueOfStone(stone(field(Row,_),Color,normal),Value) :-

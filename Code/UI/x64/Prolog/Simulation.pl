@@ -14,35 +14,34 @@ possibleMove(World,Player,NewWorld,Call) :-
     rulez:isEnemy(Player, Enemy),
     removeEnemyStones(World,Enemy, PlayerStones),
     member(Stone,PlayerStones),
-    checkStonePossibility(World,Stone,NewWorld,Call).
+    movesOfStone(World,Stone,NewWorld,Call).
 
-movesOfStone(World,Stone, NewWorld, [Call]) :-
+movesOfStone(World,Stone, NewWorld, Calls) :-
     rulez:moveDirections(Stone,Direction),
-    Stone = stone(Field,_,_),
-    board:hasRelation(Field,Destination,Direction),
+    Stone = stone(Field,Color,Mode),
     rulez:isMoveValid(World,Stone,Direction,Destination),
-    simulateMove(World,Stone,Destination,NewWorld,Call).
-
-checkStonePossibility(World,Stone,NewWorld, Calls):-
+    simulateMove(World,Stone,Destination,TmpWorld,Call),
     (
-            rulez:canHit(World,Stone,HitTree),
-            not(tree:isLeaf(HitTree)),
-            search:longesPath(HitTree,_,[Stone | Victims]),
-            simulateHits(World,Stone,Victims,NewWorld,Calls)
+        board:isFieldBetween(Field,Destination,_) ->
+          (
+              TmpStone = stone(Destination,Color,Mode),
+              rulez:canHit(TmpWorld,TmpStone,HitTree),
+              not(tree:isLeaf(HitTree)) ->
+                  search:longesPath(HitTree,_,[hit(TmpWorld,_) | Hits]),
+                  createCallList(Hits,NewWorld,FurtherCalls),
+                  Calls = [Call| FurtherCalls]
+              ;
+                  Calls = [Call],
+                  NewWorld = TmpWorld
+          )
         ;
-            movesOfStone(World,Stone,NewWorld,Calls)
+        Calls = [Call],
+        NewWorld = TmpWorld
     ).
 
-simulateHits(World,Hitter,Victims, NewWorld,Calls) :-
-    simulateHits(World,Hitter,Victims, [],NewWorld,Calls).
-
-simulateHits(World,_,[], Calls,World,Calls).
-simulateHits(World,Hitter, [Victim|Victims], CurCalls,NewWorld, [Call | TmpCalls]) :-
-    Hitter = stone(HField,Color,Mode),
-    Victim = stone(VField,_,_),
-    board:isFieldBetween(HField,Destination,VField),
-    simulateMove(World,Hitter,Destination,TmpWorld, Call),
-    simulateHits(TmpWorld,stone(Destination,Color,Mode),Victims,CurCalls,NewWorld,TmpCalls).
+createCallList([hit(World,Call)],World,[Call]).
+createCallList([hit(_,Call)| Hits],NewWorld,[Call | Calls]) :-
+    createCallList(Hits,NewWorld, Calls).
 
 removeEnemyStones([], _, []).
 removeEnemyStones([Stone| World], EnemyColor, NewList):-
@@ -54,22 +53,3 @@ removeEnemyStones([Stone| World], EnemyColor, NewList):-
        ;
        NewList = [Stone | TmpList]
     ).
-
-simulateMove(World, Stone,Destination,NewWorld, Call) :-
-    subtract(World,[Stone],TmpWorld),
-    Stone = stone(Source,Color,Mode),
-    (
-       rulez:canTransformIntoKing(stone(Destination,Color,Mode)) ->
-          Tmp2World = [stone(Destination,Color,king)| TmpWorld]
-       ;
-          Tmp2World = [stone(Destination,Color,Mode)| TmpWorld]
-    ),
-    (
-       not(board:hasRelation(Source,Destination,_))->
-           board:isFieldBetween(Source,Destination,Between),
-           board:stoneAt(Tmp2World,Between,RemoveStone),
-           subtract(Tmp2World,[RemoveStone],NewWorld)
-       ;
-          NewWorld = Tmp2World
-    ),
-    Call =.. [performMove,Source,Destination].
