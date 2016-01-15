@@ -43,15 +43,21 @@ moveStone(Source, Direction, Destination) :-
    Stone = stone(_,Color,Type),
    (
       board:isFieldBetween(Source,Destination,_) ->
-         assert(hitMove(stone(Destination,Color,Type)))
+         assert(hitMove(stone(Destination,_,_)))
       ;
       true
    ).
 
 isValidStone(Stone) :-
+
+    Stone = stone(StoneField, _, _),
+
    hitMove(Used) ->
       (
-         Used == Stone ->
+         (
+            Used = stone(UsedField, _, _),
+            UsedField == StoneField
+        ) ->
             true
          ;
             game:logMessage('Es muss mit dem gleichem Stein weitergespielt werden.'),
@@ -237,8 +243,10 @@ canHumanPlayerMove :-
    not(tree:isLeaf(Tree)).
 
 aiNextMove :-
-   ai:nextAiMove(Calls)->
-      assert(aiMove(Calls))
+   ai:nextAiMove(Calls, Value)->
+      assert(aiMove(Calls)),
+      atom_concat('Der Zugwert der KI beträgt ', Value, LogValue),
+      game:logMessage(LogValue)
    ;
    (
       canHumanPlayerMove ->
