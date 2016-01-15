@@ -1,5 +1,10 @@
-% Autor: Robert Maas
-% Datum: 02.01.2016
+/** <game>
+
+Modul provides all necessary data for the game.
+
+@author Robert Maas and Christian Schuett
+@date 02.01.2016
+*/
 
 :- module('game',[
      createStoneList/1, %call: -World
@@ -23,17 +28,37 @@ player(bottom,white).
 :- dynamic stonesUpdated/0.
 :- dynamic stone/3.
 
+/**
+ * Predicate to find all stones in the knowledge base.
+ * @return List List with all stones.
+ */
 createStoneList(List) :- findall(stone(Field,Color,Type), stone(Field,Color,Type),List).
 
+/**
+ * Predicate checks if a stone is at the given field.
+ * @param Field.
+ * @param Stone.
+ */
 stoneAt(Field,Stone) :-
    stone(Field,Color,Type),
    Stone = stone(Field,Color,Type).
 
+/**
+ * Predicate gives the Destination of a source field and a direction.
+ * @param Source The source field.
+ * @param Direction The direction the stone moves.
+ * @return Destination Field.
+ */
 move(Source,Direction,Destination) :-
    stone(Source,Color,Type),
    createStoneList(World),
    rulez:isMoveValid(World, stone(Source,Color,Type),Direction, Destination).
 
+/**
+ * Predicate to perfom a move.
+ * @param Source The source field.
+ * @param Destination The destination field.
+ */
 performMove(Source,Destination) :-
    stone(Source,Color,Type),
    retract(stone(Source,Color,Type)),
@@ -56,6 +81,11 @@ performMove(Source,Destination) :-
       true
    ).
 
+/**
+ * Predicate to get the current World if the stonesUpdated flag is set.
+ * Used for the gui. Flag will be retracted from the knowledge base.
+ * @return Stones The current world.
+ */
 getStones(Stones) :-
    stonesUpdated->
       createStoneList(Stones),
@@ -65,6 +95,12 @@ getStones(Stones) :-
 :- dynamic logUpdated/0.
 :- dynamic logs/1.
 
+/**
+ * Predicate to send Logmessages from Prolog to the gui.
+ * The Log message will be saved in the knowledge base
+ * and a flag for the gui is set.
+ *@param Message The message to send to the gui.
+ */
 logMessage(Message) :-
    (
       logs(Logs) ->
@@ -79,12 +115,27 @@ logMessage(Message) :-
          true
    ).
 
+/**
+ * Predicate to get the logs.
+ * @return Logs The Logs from the knowledge base.
+ */
 getLogs(Logs) :-
    logUpdated->
       logs(Logs),
       retract(logUpdated).
 %----------------------End Logging----------------------------------------
 
+/**
+ * Predicate to load a file and create the world (List of stones).
+ * Format:  8x8 chars
+ *          _ empty Field
+ *          b black Stone
+ *          B black King
+ *          w white Stone
+ *          W white King
+ *
+ * @param Stream The filestream.
+ */
 loadFile(Stream) :-
    retractall(stone(_,_,_)),
    retractall(currentField(_)),

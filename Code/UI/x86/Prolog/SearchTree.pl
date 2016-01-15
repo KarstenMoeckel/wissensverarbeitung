@@ -1,5 +1,10 @@
-﻿% Autor: Christian Schuett, Karsten Möckel
-% Datum: 11.01.2016
+﻿/** <ai>
+
+This module generates the searchtree and evaluates the leaves and starts Min-Max.
+
+@autor: Karsten Möeckel, Robert Maas
+@date: 15.01.2016
+ */
 :- module(searchTree, [
     initialSearchTree/3
     ]).
@@ -14,10 +19,26 @@
 
 :- dynamic childNodes/2.
 
+/**
+ * Predicate to start generation of search tree
+ * @param MaxDepth maximal depth of tree
+ * @param StartPlayer player with wich the generation starts
+ * @return Tree the searchTree
+ */
 initialSearchTree(MaxDepth,StartPlayer,Tree) :-
     game:createStoneList(World),
     initialSearchTree(1,MaxDepth,StartPlayer,World,StartPlayer,[],Tree).
 
+/**
+ * Predicate to generate the tree
+ * @param CurDepth current depth in tree
+ * @param MaxDepth maximal Depth of tree
+ * @param AIPlayer Color of AI-player
+ * @param World list of all stones
+ * @param Player current player
+ * @param Call move, which was done to come from previoues wrold to current world
+ * @return Tree generated Tree
+ */
 initialSearchTree(MaxDepth,MaxDepth,AIPlayer,World,Player,Call,Tree):-
     rulez:isEnemy(Player,Enemy),
     evaluation:valueOfGame(World,AIPlayer,Value),
@@ -59,12 +80,6 @@ initialSearchTree(CurDepth,MaxDepth,AIPlayer,World,Player,DoneCall,Tree) :-
           tree:appendChildNodesToRootNode(Nodes,TmpTree,Tree)
        )
     ).
-
-createNewNodes([],_,_,[]).
-createNewNodes([OldNode| OldNodes],StartDepth, MaxDepth, [NewNode| NewNodes]):-
-    createNewNodes(OldNodes,StartDepth,MaxDepth,NewNodes),
-    searchNode:datasOfNode(OldNode,World, Turn, _, Calls),
-    initialSearchTree(StartDepth,MaxDepth,World,Turn,Calls,NewNode).
 
 createTreeNode(World,Player,Value,Call,Node):-
     tree:appendTree(_,node(World,Player,Value,Call),_, Node).
