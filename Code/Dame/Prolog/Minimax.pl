@@ -18,9 +18,9 @@ This module provides the minimax algorithm.
  * @return Strategy max if ai, else min
  */
 isStrategy(Color, Strategy) :-
-    ai:aiPlayer(Color) -> Strategy = max
+    ai:aiPlayer(Color) -> Strategy = min
     ;
-    Strategy = min.
+    Strategy = max.
 
 /**
  * Predicate to start the minimax algorithm.
