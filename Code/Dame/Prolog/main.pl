@@ -243,7 +243,7 @@ canHumanPlayerMove :-
 aiNextMove :-
    ai:nextAiMove(Calls, Value)->
       assert(aiMove(Calls)),
-      atom_concat('Der Zugwert der KI beträgt ', Value, LogValue),
+      atom_concat('Der Zugwert des Spielers beträgt ', Value, LogValue),
       game:logMessage(LogValue)
    ;
    (
